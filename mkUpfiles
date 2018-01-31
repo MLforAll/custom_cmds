@@ -1,0 +1,19 @@
+#!/bin/sh
+
+lst="`ls ft_*.c *.h`"
+
+filesIf="Makefile auteur"
+for f in $filesIf
+do
+	if [ -f "$f" ]; then lst="$lst $f"; fi
+done
+
+if [ "$1" != "" ]; then
+	outf="$1"
+else
+	outf="upfiles_`basename "$PWD" | tr '[:upper:]' '[:lower:]'`"
+fi
+
+ls $lst > "$outf"
+
+exit 0

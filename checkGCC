@@ -1,0 +1,2 @@
+#!/bin/sh
+for d in ex*; do if [ "$(gcc -Wall -Werror -Wextra $d/test$d.c -o $d/test$d)" == "" ];then echo "$d: Diff OK :D"; else echo "$d: Diff KO"; fi; done

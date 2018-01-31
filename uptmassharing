@@ -1,0 +1,17 @@
+#!/bin/sh
+
+IFS="/" read -ra path_components <<< "$1"
+path_components_length=${#path_components[@]}
+fileNameExtension=${path_components[(($path_components_length-1))]}
+
+defaultFolder="VariousUploadsForSharing"
+if [ "$2" != "" ]; then
+	if [ "$2" == "42" ]; then
+		ftc="42"
+	else
+		ftc="$defaultFolder/$2"
+	fi
+else
+	ftc="$defaultFolder"
+fi
+scp "$1" kelian@51.255.193.81:/var/www/mlforall/$ftc && echo "File uploaded to http://51.255.193.81/mlforall/$ftc/$fileNameExtension"

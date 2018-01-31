@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ "$1" == "" ]; then echo "Specify filename.extension!"; exit 1; fi
+
+defaultFolder="VariousUploadsForSharing"
+if [ "$2" != "" ]; then
+	if [ "$2" == "42" ]; then
+		ftc="42"
+	else
+		ftc="$defaultFolder/$2"
+	fi
+else
+	ftc="$defaultFolder"
+fi
+pathtorm="/var/www/mlforall/$ftc/$1"
+ssh kelian@51.255.193.81 "if [ ! -f "$pathtorm" ]; then echo "File not found!"; else rm "$pathtorm"; echo "File deleted!"; fi"

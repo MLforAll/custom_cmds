@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# By DUMARAIS Kelian
+# @MLforAll
+# 42 UID: kdumarai
+
+# THIS SCRIPT DOESN'T ALWAYS WORK
+# I DO NOT USE IT ANYMORE
+# I LEFT IT HERE 'CAUSE I TYPED IT
+
+if [ "$1" = "" ]; then
+	echo "Please enter a command name!"
+	exit 1
+fi
+
+for f in $(find /usr/share/man -name "$1".*)
+do
+	if [ "$(cat $f | grep "std")" != "" ]
+	then
+		cmd="man $(echo "$f" | awk 'BEGIN {FS="."} {print $2}') $1"
+		echo "$cmd"
+		if [ "$2" = "go" ]; then
+			eval $cmd
+		fi
+		exit 0
+	fi
+done
+
+echo "No entry found for $1"
+exit 1

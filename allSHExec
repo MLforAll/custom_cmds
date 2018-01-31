@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ ! -d "$1" ]; then
+	echo "Path not there!"
+	echo "Exiting..."
+	sleep 1
+	exit 1
+fi
+
+find "$1" -name "*.sh" -print -exec chmod +x \{} \;

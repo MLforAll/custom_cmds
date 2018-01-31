@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Non working script
+echo "THIS SCRIPT IS NOT FINISHED AND DOESN'T WORK!"
+exit 1
+
+fillWithBlanks()
+{
+	printf "$1"
+	for (( i=${#1}; i<$(( 80 - ${#2} )); i++ ))
+	do
+		printf " "
+	done
+	echo "$2"
+}
+
+for f in *.c
+do
+	if [ -f "$f" ]; then
+		hfnline="`cat "$f" | head -n 4 | tail -n 1`"
+		if [ "`echo $hfnline | awk '{print $2}'`" != "$f" ]; then
+			p1old="`echo "$hfnline" | awk ''`"
+			p1="`sed "s|$hfnline|$f|"`"
+			newline="`fillWithBlanks "$p1" ":+:      :+:    :+:    #"`"
+			sed -i '' "s/$hfnline/$newline/" "$f" && echo "File $f's header updated!"
+		fi
+	fi
+done

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ ! -f "$1" ]; then
+	echo "Error no. 2: No such file or directory!"
+	exit 1
+fi
+
+sublimePath="$HOME/Applications/Sublime Text.app"
+if [ ! -d "$sublimePath" ]; then
+	sublimePath="/Applications/Sublime Text.app"
+fi
+
+open -a "$sublimePath" $@

@@ -1,0 +1,6 @@
+#!/bin/sh
+startdir="."
+excepts=""
+[ ! -z $1 ] && startdir="$1"
+[ -f "$startdir/.oproj_config" ] && excepts=`cat "$startdir/.oproj_config"`
+sublopen `find "$startdir" -type f \( -name "*.c" -o -name "*.h" \) | grep -v "$excepts"`

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+total=0
+for f in *.c
+do
+	if [ -f "$f" ]; then
+		hfn="`cat "$f" | head -n 4 | tail -n 1 | awk '{print $2}'`"
+		if [ "$hfn" != "$f" ]; then
+			(( total++ ))
+			if [ "$1" == "list" ]; then echo "$f "; else echo "File $f's header needs to be updated!"; fi
+		fi
+	fi
+done
+
+if [ $total -eq 0 ]; then
+	echo "All headers are correct!"
+fi

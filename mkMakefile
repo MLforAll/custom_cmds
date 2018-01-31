@@ -1,0 +1,204 @@
+#!/bin/bash
+
+# Shell Script by kdumarai to create Makefiles!
+# v1: Original version (28/08/17)
+# v2: Added %.o rule
+# v3: Added .PHONY rule
+# v4: Does not relink everything if a file has been changed
+
+## GBL VARS
+
+BLACKCLR="\033[30m"
+WHITECLR="\033[37m"
+REDCLR="\033[31m"
+BLUECLR="\033[34m"
+GREENCLR="\033[32m"
+DEFAULTCLR="\033[39m"
+
+## FUNCTIONS
+
+usage()
+{
+	cliName=`basename "$0"`
+	echo "Usage: $cliName [srcs_files] [options]"
+	printf \\n
+	echo "-T__type__:\tProject's type (slib or prgm)"
+	echo "-N__name__:\tProject's name"
+	echo "-F__number__:\tNumber of src file per line in \$(OBJS)"
+	printf \\n
+}
+
+searchOption()
+{
+	args=($@)
+	for (( a=1; a<$#; a++ ))
+	do
+		if [ "`echo "${args[$a]}" | head -c 2`" == "$1" ]; then
+			echo "${args[$a]}" | tail -c +3
+			break
+		fi
+	done
+}
+
+fillWithBlanks()
+{
+	printf "$1"
+	for (( i=${#1}; i<$(( 80 - ${#2} )); i++ ))
+	do
+		printf " "
+	done
+	echo "$2"
+}
+
+getNBfilesArgs()
+{
+	i=0
+	for f in $@
+	do
+		if [ "`echo $f | head -c 1`" != "-" ]; then
+			i=$(( i + 1 ))
+		fi
+	done
+	echo $i
+}
+
+mkFileHeader()
+{
+	echo "# **************************************************************************** #"
+	echo "#                                                                              #"
+	echo "#                                                         :::      ::::::::    #"
+	echo "#    Makefile                                           :+:      :+:    :+:    #"
+	echo "#                                                     +:+ +:+         +:+      #"
+	fillWithBlanks "#    By: $USER <$MAIL>" "+#+  +:+       +#+         #"
+	echo "#                                                 +#+#+#+#+#+   +#+            #"
+	fillWithBlanks "#    Created: `date "+%Y/%m/%d %H:%M:%S"` by $USER" "#+#    #+#              #"
+	fillWithBlanks "#    Updated: `date "+%Y/%m/%d %H:%M:%S"` by $USER" "###   ########.fr        #"
+	echo "#                                                                              #"
+	echo "# **************************************************************************** #"
+}
+
+## SCRIPT
+
+# VARS
+outf=Makefile
+
+# NAME
+noption=`searchOption \-N $@`
+if [ "$noption" != "" ]; then
+	prgmName="$noption"
+else
+	prgmName="prgm"
+fi
+
+# VISIBLE HEADER
+echo "############# mkMakefile #############"
+echo "        kdumarai@student.42.fr"
+echo "######################################"
+printf \\n
+
+# Usage
+if [ "$1" == "usage" ]; then
+	usage
+	exit 0
+fi
+if [ $# -eq 0 ]; then
+	usage
+	exit 1
+fi
+
+# Name
+echo "Name: $prgmName"
+printf \\n
+
+# Base
+echo "HEADER: Adding up-to-date header"
+mkFileHeader > Makefile
+printf \\n >> $outf
+printf \\n
+
+# Name
+echo "[VARIABLES]"
+
+echo "VARIABLES: Adding vars"
+printf "NAME = $prgmName\n\n" >> $outf
+
+# CFLAGS
+printf "CFLAGS = -Wall -Werror -Wextra" >> $outf
+soption=`searchOption \-I $@`
+if [ "$soption" != "" ]; then
+	printf " -I$soption\n\n" >> $outf
+fi
+printf "\n\n" >> $outf
+printf \\n
+
+# SRCS & OBJS
+echo "[SRCS & OBJS]"
+printf "SRCS = " >> $outf
+
+filesArgsCnt=`getNBfilesArgs $@`
+
+filesPerLine=`searchOption \-F $@`
+if [ "$filesPerLine" == "" ]; then
+	filesPerLine=1
+fi
+
+i=0
+k=0
+for f in $@
+do
+	if [ "`echo $f | head -c 1`" != "-" ]; then
+		if [ $i -gt 0 ] && [ $k -eq 0 ]; then
+			printf "\t" >> $outf
+		fi
+		if [ $i -gt 0 ]; then printf "\033[0A\033[K"; fi
+		echo "SRCS: Adding $f"
+		printf "$f" >> $outf
+		if [ $k -eq $(( $filesPerLine - 1 )) ]; then
+			if [ $i -lt $(( $filesArgsCnt - 1 )) ]; then
+				printf " \\" >> $outf
+				printf \\n >> $outf
+			fi
+			k=0
+		else
+			printf " " >> $outf
+			(( k++ ))
+		fi
+	fi
+	(( i++ ))
+done
+printf \\n >> $outf
+printf "\033[0A\033[KSRCS: ${GREENCLR}Done!${DEFAULTCLR}\n"
+
+printf "\nOBJS = \$(SRCS:" >> $outf
+echo "%.c=%.o)" >> $outf
+echo "OBJS: ${GREENCLR}Done!${DEFAULTCLR}"
+
+# Let's RULE(S) them all!
+printf \\n
+echo "[RULES]"
+
+echo "RULES: Adding all"
+printf "\nall: \$(NAME)\n\n" >> $outf
+
+echo "RULES: Adding \$(NAME)"
+printf "\$(NAME): \$(OBJS)\n" >> $outf
+if [ "`searchOption \-T $@`" == "slib" ]; then
+	printf "\tar rcs \$(NAME) \$?\n\n" >> $outf
+else
+	printf "\tgcc -o \$(NAME) \$(OBJS)\n\n" >> $outf
+fi
+
+echo "RULES: Adding %.o"
+echo "%.o: %.c\n\tgcc \$(CFLAGS) -c \$<\n" >> $outf
+
+echo "RULES: Adding clean"
+printf "clean:\n\trm -f \$(OBJS)\n\n" >> $outf
+
+echo "RULES: Adding fclean"
+printf "fclean: clean\n\trm -f \$(NAME)\n\n" >> $outf
+
+echo "RULES: Adding re"
+printf "re: fclean all\n\n" >> $outf
+
+echo "RULES: Adding .PHONY"
+printf ".PHONY: all clean fclean re\n" >> $outf

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# KIND OF USELESS
+
+if [ ! -d "$1" -o ! -d "$2" ]; then
+	echo "usage: `basename "$0"`: /path/to/folder1 /path/to/folder2"
+	exit 1
+fi
+
+for f in "$1"/*
+do
+	if [ -f "$2/`basename "$f"`" ]; then
+		if [ "`diff "$f" "$2"/`basename "$f"``" != "" ]; then
+			echo "File `basename "$f"` differs!"
+		fi
+	else
+		echo "File `basename "$f"` doesn't exit in $2 folder!"
+	fi
+done
+
+exit 0

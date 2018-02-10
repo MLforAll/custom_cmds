@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+	echo "usage: chkf text [folder]"
+	exit 1
+fi
+
+startdir="."
+[ ! -z "$2" ] && startdir="$2"
+for f in `find "$startdir" -type f`
+do
+	[ ! -z "$(grep "$1" "$f")" ] && echo "$f"
+done

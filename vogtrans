@@ -1,0 +1,29 @@
+#!bin/sh
+
+if [ ! -d "$PROJPATH" ]; then
+	echo "$0: missing \$PROJPATH env var"
+	exit 1
+fi
+if [ ! -d "$PROJPATH/Libft -o ! -d "$PROJPATH/Get_Next_Line" ]; then
+	echo "$0: missing Libft or Get_Next_Line folder in \$PROJPATH"
+	exit 1
+fi
+if [ ! -d "$1" -o -z "$2" ]; then
+	echo "usage: $0 source destination"
+	exit 1
+fi
+
+[ ! -d "$2" ] && mkdir "$2"
+rm -rf "$2/*"
+
+cp -a "$1"/* "$2"
+rm -f "$2/README.md" "$2/libft"
+rm -rf "$2/misc"
+
+cp -a "$PROJPATH/Libft" "$2/libft"
+rm -f "$2/libft/README.md" "$2/libft/auteur" "$2/libft/upfiles_libft"
+rm -f "$2/libft/get_next_line."*
+cp -p "$PROJPATH/Get_Next_Line/get_next_line."* "$2/libft"
+rm -rf "$2/libft/.git" "$2/libft/misc"
+
+exit 0

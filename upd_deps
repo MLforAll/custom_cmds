@@ -4,15 +4,20 @@ if [ ! -f "$1" ]; then
 	echo "$0: Please provide a bin"
 	exit 1
 fi
-if [ ! -d "`dirname "$1"`/$2" ]; then
+if [ ! -d "`dirname "$1"`/$2" ] && [ ! -d "$2" ]; then
 	echo "$0: Please provide a lib path relative to bin path"
 	exit 1
 fi
 
+libp="$2"
+[ "$3" = "relative" ] && libp="@executable_path/$2"
+
 echo "=========== $1 ============"
 for dep in `otool -L "$1" | awk '{if (NR > 1) print $1}' | grep -v '^@'`
 do
-	newpath="@executable_path/$2/"`basename "$dep"`
-	echo "Changing $dep to $newpath"
-	install_name_tool -change "$dep" "$newpath" "$1"
+	if [ ! -f "$dep" ]; then
+		newpath="$libp/"`basename "$dep"`
+		echo "Changing $dep to $newpath"
+		install_name_tool -change "$dep" "$newpath" "$1" &> /dev/null
+	fi
 done

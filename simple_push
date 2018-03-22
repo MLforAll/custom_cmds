@@ -1,0 +1,6 @@
+#!/bin/sh
+
+git add . || exit 1
+read -p "Commit msg: " cmsg
+git commit -m "$cmsg"
+git push

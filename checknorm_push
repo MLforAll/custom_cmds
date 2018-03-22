@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -z "`norminette */*.c */*.h | grep -E '^(Error|Warning)'`" ]; then
+	printf "\033[1;32mAll good"
+else
+	printf "\033[1;31mError"
+fi
+printf "\033[0;39m\n"

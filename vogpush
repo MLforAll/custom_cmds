@@ -1,0 +1,26 @@
+#!/bin/sh
+
+fatal()
+{
+	echo "$1"
+	exit 1	
+}
+
+klist &> /dev/null
+if [ $? -neq 0 ]; then
+	echo "=============="
+	echo "kinit required"
+	kinit || fatal "Error with kinit"
+	echo "  kinit done"
+	echo "=============="
+fi
+
+git add . || fatal "Error with git add"
+echo "git add done!"
+
+read -p "Commit msg: " cmsg
+git commit -m "$cmsg" || fatal "Error with git commit"
+echo "git commit done!"
+
+git push || fatal "Error with git push"
+echo "git push done!"

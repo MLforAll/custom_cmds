@@ -7,7 +7,7 @@ fatal()
 }
 
 klist &> /dev/null
-if [ $? -neq 0 ]; then
+if [ $? -ne 0 ]; then
 	echo "=============="
 	echo "kinit required"
 	kinit || fatal "Error with kinit"

@@ -17,6 +17,7 @@ fi
 
 git add . || fatal "Error with git add"
 echo "git add done!"
+git status
 
 read -p "Commit msg: " cmsg
 git commit -m "$cmsg" || fatal "Error with git commit"

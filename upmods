@@ -70,11 +70,16 @@ do
 	echo "MODE: $rmode"
 	printf "${DEFAULTCLR}\n"
 
-	if [ "`hostname | grep '.42.fr$'`" == "" ] && [ "$rmode" == "vogsphere" ]; then
-		echo "${REDCLR}Not using a cluster's iMac!"
-		echo "Pushing to vogsphere is disabled!${DEFAULTCLR}"
-		printf \\n
-		break
+	if [ -z "`klist &> /dev/null`" ] && [ "$rmode" == "vogsphere" ]; then
+		printf "\033[1;31mNo kerberos kickets available!${DEFAULTCLR}\n"
+		read -p "Please enter your kusername: " kuser
+		kinit "$kuser"
+		if [ $? -ne 0 ]; then
+			printf "\033[1;31mkinit failed!${DEFAULTCLR}\n"
+			break
+		else
+			printf "\033[1;32mkinit OK!${DEFAULTCLR}\n\n"
+		fi
 	fi
 
 	# Input file (vogsphere)?

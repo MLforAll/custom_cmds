@@ -70,7 +70,7 @@ do
 	echo "MODE: $rmode"
 	printf "${DEFAULTCLR}\n"
 
-	if [ -z "`klist &> /dev/null`" ] && [ "$rmode" == "vogsphere" ]; then
+	if [ -z "`klist 2> /dev/null`" ] && [ "$rmode" == "vogsphere" ]; then
 		printf "\033[1;31mNo kerberos kickets available!${DEFAULTCLR}\n"
 		read -p "Please enter your kusername: " kuser
 		kinit "$kuser"

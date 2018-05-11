@@ -48,6 +48,8 @@ if [ "$1" != "" ]; then
 	inputFile=${inputFile#"$inputFileFolderPath/"}
 fi
 
+cd `git rev-parse --show-toplevel`
+
 for r in $(git remote show)
 do
 

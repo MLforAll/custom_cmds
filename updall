@@ -1,0 +1,10 @@
+#!/bin/sh
+
+echo "Updating all projects"
+echo
+for p in *
+do
+	echo "Updating project: $p"
+	git -C $p pull
+	echo
+done

@@ -22,3 +22,4 @@ if [ -d "$1" ]; then
 fi
 
 git clone "$github_url/42$1" "$1"
+ln -s ../Libft "$1/libft"

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+git status
+echo
+
+read -p "Message or \`\`abort'': " msg
+if [ "$msg" == "abort" ]
+then
+	echo "Byebye"
+	exit 0
+fi
+git add -A
+echo
+
+git commit -m "$msg"
+echo
+
+git push

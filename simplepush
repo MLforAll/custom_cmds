@@ -1,5 +1,8 @@
 #!/bin/sh
 
+git add -A
+echo
+
 git status
 echo
 
@@ -9,8 +12,6 @@ then
 	echo "Byebye"
 	exit 0
 fi
-git add -A
-echo
 
 git commit -m "$msg"
 echo

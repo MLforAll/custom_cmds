@@ -26,7 +26,7 @@ echo "Adding libft"
 cp -a "$PROJPATH/Libft" "$2/libft"
 echo "Cleaning libft"
 rm -rf "$2/libft/.git" "$2/libft/misc"
-rm -f "$2/libft/README.md" "$2/libft/auteur" "$2/libft/upfiles_libft"
+rm -f "$2/libft/README.md" "$2/libft/auteur"
 
 echo "Done!"
 exit 0

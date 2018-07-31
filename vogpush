@@ -10,8 +10,17 @@ klist &> /dev/null
 if [ $? -ne 0 ]; then
 	echo "=============="
 	echo "kinit required"
-	read -p "Enter username @42.FR: " kusername
-	kinit "$kusername" || fatal "Error with kinit"
+	if [ "$USER42" != "" ]; then
+		kusername="$USER42"
+	else
+		read -p "Enter username @42.FR: " kusername
+	fi
+	kinit "$kusername"
+	if [ $? -ne 0 ]; then
+		echo "  kinit fail"
+		echo "=============="
+		exit 1
+	fi
 	echo "  kinit done"
 	echo "=============="
 fi

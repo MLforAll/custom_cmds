@@ -6,9 +6,14 @@ fatal()
 	exit 1	
 }
 
+if [ -d "$1" ]; then
+	echo "[INFO] Changing directory to: $1"
+	cd "$1"
+fi
+
 klist &> /dev/null
 if [ $? -ne 0 ]; then
-	echo "=============="
+	echo "\033[1;39m==============\033[0;39m"
 	echo "kinit required"
 	if [ "$USER42" != "" ]; then
 		kusername="$USER42"
@@ -17,11 +22,11 @@ if [ $? -ne 0 ]; then
 	fi
 	kinit "$kusername"
 	if [ $? -ne 0 ]; then
-		echo "  kinit fail"
-		echo "=============="
+		echo "\033[0;31mkinit fail\033[0;39m"
+		echo "\033[1;39m==============\033[0;39m"
 		exit 1
 	fi
-	echo "  kinit done"
+	echo "\033[0;33mkinit success\033[0;39m"
 	echo "=============="
 fi
 

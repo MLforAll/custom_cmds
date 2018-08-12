@@ -111,7 +111,7 @@ do
 		done < "$inputFile"
 		newFileList="`cat "$inputFile"`"
 	else
-		newFileList="`find . \( -type f -o -type l \) | grep -v '\./\.git' | sed 's|\./||' | grep -v '\.DS_Store$' | grep -vi '^libft' | grep -v '^\._' | grep -v '\.o$' | grep -v '\.dSYM$' | grep -v '\.a$'`"
+		newFileList="`find . \( -type f -o -type l \) | grep -v '\./\.git' | sed 's|\./||' | grep -v '\.DS_Store$' | grep -vi '^libft$' | grep -v '^\._' | grep -v '\.o$' | grep -v '\.dSYM$' | grep -v '\.a$'`"
 		[ -f Makefile ] && [ ! -z "$(grep 'NAME[ ]\+=[a-zA-Z ]\+' Makefile)" ] && newFileList="`echo "$newFileList" | grep -v ^"$(grep 'NAME[ ]\+=[a-zA-Z ]\+' Makefile | awk '{print $3}')"$`"
 		totalFilesAdded=`echo "$newFileList" | wc -l`
 		git add $newFileList

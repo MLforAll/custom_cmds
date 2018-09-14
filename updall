@@ -4,7 +4,10 @@ echo "Updating all projects"
 echo
 for p in *
 do
+	if [ ! -d "$p" ]; then
+		continue
+	fi
 	echo "Updating project: $p"
-	git -C $p pull
+	git -C "$p" pull
 	echo
 done

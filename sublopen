@@ -10,4 +10,10 @@ if [ ! -d "$sublimePath" ]; then
 	sublimePath="/Applications/Sublime Text.app"
 fi
 
-open -a "$sublimePath" $@
+cmd="open -a '$sublimePath'"
+for (( i=0; i<=$#; i++ ))
+do
+	cmd+=" \"$1\""
+	shift
+done
+eval "$cmd"

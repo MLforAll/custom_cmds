@@ -12,7 +12,7 @@ fi
 
 num=$#
 cmd="open -a '$sublimePath'"
-for (( i=0; i<=$num; i++ ))
+for (( i=0; i<$num; i++ ))
 do
 	cmd+=" \"$1\""
 	shift

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+fatal()
+{
+	echo "$1"
+	if [ -z "$2" ]; then
+		exit 1
+	fi
+	exit 0
+}
+
+if [ -z "$(adb devices | sed '1,1d; $d')" ]; then
+	fatal 'No adb devices'
+fi
+
+bname=$(basename "$1")
+output=$(adb shell << EOF
+ls "$2/$bname" 2>/dev/null
+EOF
+)
+
+if [ -z "$output" ]; then # File does not exists
+	adb push "$1" "$2" || echo "Error copying $bname. Continuing anyways..."
+else
+	echo "Not copying $bname because it exists on device"
+fi

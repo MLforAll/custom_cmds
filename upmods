@@ -114,7 +114,10 @@ do
 		newFileList="`find . \( -type f -o -type l \) | grep -v '\./\.git' | sed 's|\./||' | grep -v '\.DS_Store$' | grep -vi '^libft$' | grep -v '^\._' | grep -v '\.o$' | grep -v '\.dSYM$' | grep -v '\.a$'`"
 		[ -f Makefile ] && [ ! -z "$(grep 'NAME[ ]\+=[a-zA-Z ]\+' Makefile)" ] && newFileList="`echo "$newFileList" | grep -v ^"$(grep 'NAME[ ]\+=[a-zA-Z ]\+' Makefile | awk '{print $3}')"$`"
 		totalFilesAdded=`echo "$newFileList" | wc -l`
-		git add $newFileList
+		while read line
+		do
+			git add "$line"
+		done <<< "$newFileList"
 	fi
 
 	if [ $totalFilesAdded -eq 0 ]; then

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+fatal()
+{
+	echo "\033[1;39m$1\033[0;39m" 1>&2
+	[ -z "$2" ] && exit 1
+	exit $2
+}
+
+ccpath=$(dirname "$PROJPATH")/custom_cmds
+
+[ -d "$ccpath" ] || fatal "$ccpath not found!"
+
+echo "\033[1;32mUpdating custom_cmds at '$ccpath'\033[0;39m"
+git -C "$ccpath" pull

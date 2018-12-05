@@ -7,7 +7,7 @@ git status
 echo
 
 read -p "Message or \`\`abort'': " msg
-if [ "$msg" == "abort" ]
+if [ "$msg" = "abort" ]
 then
 	echo "Byebye"
 	exit 0

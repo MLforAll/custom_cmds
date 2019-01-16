@@ -1,6 +1,13 @@
 #!/bin/sh
+
 startdir="."
 [ ! -z $1 ] && startdir="$1"
 files=`find "$startdir" -type f \( -name "*.c" -o -name "*.h" \) 2> /dev/null`
 [ -f "$startdir/.oproj_config" ] && files=`echo "$files" | grep -v "^$(cat "$startdir/.oproj_config")"`
-sublopen $files
+
+if which subl >/dev/null 2>&1
+then
+	subl $files
+else
+	sublopen $files
+fi

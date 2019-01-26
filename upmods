@@ -75,7 +75,7 @@ do
 
 	if [ -z "`klist 2> /dev/null`" ] && [ "$rmode" == "vogsphere" ]; then
 		printf "\033[1;31mNo kerberos kickets available!${DEFAULTCLR}\n"
-		read -p "Please enter your kusername: " kuser
+		read -e -p "Please enter your kusername: " kuser
 		kinit "$kuser"
 		if [ $? -ne 0 ]; then
 			printf "\033[1;31mkinit failed!${DEFAULTCLR}\n"
@@ -87,7 +87,7 @@ do
 
 	# Input file (vogsphere)?
 	if [ "$1" == "" ] && [ "$rmode" == "vogsphere" ]; then
-		while [ ! -f "$inputFile" ] && [ "$inputFile" != "abort" ]; do read -p "Where is located your input file? " inputFile; done
+		while [ ! -f "$inputFile" ] && [ "$inputFile" != "abort" ]; do read -e -p "Where is located your input file? " inputFile; done
 		if [ "$inputFile" == "abort" ]; then
 			printf \\n
 			echo "Okay, aborting..."
@@ -141,18 +141,18 @@ do
 	printf \\n
 
 	# git status?
-	read -p "Do you want to see git status? (yes/anything) " qstatus
+	read -e -p "Do you want to see git status? (yes/anything) " qstatus
 	[ "$qstatus" == "yes" ] && git status
 
 	# git commit?
-	read -p "Do you want to commit those changes? (commit msg/manual/no): " commitmsg
+	read -e -p "Do you want to commit those changes? (commit msg/manual/no): " commitmsg
 	if [ "$commitmsg" != "no" ]; then
 		if [ "$commitmsg" == "manual" ]; then gitcommitArg=""; else gitcommitArg="-m"; fi
 		git commit $gitcommitArg "$commitmsg"
 		printf \\n
 
 		# git push?
-		read -p "Do you want to push? (yes/anything) " qpush
+		read -e -p "Do you want to push? (yes/anything) " qpush
 		if [ "$qpush" == "yes" ]; then
 			git push "$r"
 			printf \\n

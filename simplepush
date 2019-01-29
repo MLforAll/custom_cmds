@@ -1,4 +1,14 @@
-#!/bin/sh
+#!/bin/bash
+
+byebye()
+{
+	[ -z "$1" ] || echo
+	echo 'Byebye'
+	echo
+	exit 0
+}
+
+trap 'byebye 1' INT
 
 git add -A
 echo
@@ -6,12 +16,8 @@ echo
 git status
 echo
 
-read -p "Message or \`\`abort'': " msg
-if [ "$msg" = "abort" ]
-then
-	echo "Byebye"
-	exit 0
-fi
+read -e -p "Message or \`\`abort'': " msg
+[ "$msg" = "abort" ] && byebye
 
 git commit -m "$msg"
 echo

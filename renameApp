@@ -1,0 +1,59 @@
+#!/bin/sh
+
+if [ "$1" == "" ]; then
+	echo ""
+	echo "Dir of .app :"
+	read dapp
+else
+	dapp="$1"
+fi
+if [ "$2" == "" ]; then
+	echo ""
+	echo "Current name of .app :"
+	read cname
+else
+	cname="$2"
+fi
+if [ "$3" == "" ]; then
+	echo ""
+	echo "New name :"
+	read nname
+else
+	nname="$3"
+fi
+if [ "$4" == "" ]; then
+	donetext="Done !"
+else
+	donetext="$4"
+fi
+
+if [ ! -d "$dapp/$cname.app" ]; then
+	echo ""
+	echo "Unable to find $dapp/$cname.app!"
+	echo "Aborting!"
+	echo ""
+	exit 1
+fi
+
+touch "$dapp/testperms" > /tmp/output
+rm /tmp/output
+if [ -f "$dapp/testperms" ]; then
+	rm "$dapp/testperms"
+else
+	echo ""
+	echo "You do not have the writing rights for that folder!"
+	echo "Please run the script with sudo!"
+	echo "Aborting!"
+	echo ""
+	exit 1
+fi
+
+mv "$dapp/$cname.app" "$dapp/$nname.app"
+defaults write "$dapp/$nname.app/Contents/Info.plist" CFBundleExecutable "$nname"
+mv "$dapp/$nname.app/Contents/MacOS/$cname" "$dapp/$nname.app/Contents/MacOS/$nname"
+
+if [ "$4" != "no" ]; then
+	echo ""
+	echo "$donetext"
+	echo ""
+fi

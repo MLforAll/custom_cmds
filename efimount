@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if [ -d /Volumes/ESP ]; then
+	echo ""
+	echo "There is already a 'ESP' folder! Now what? (rm/use/open)"
+	read ans
+	echo ""
+	if [ "$ans" == "rm" ]; then sudo rm -R /Volumes/ESP ; fi
+else
+	sudo mkdir /Volumes/ESP
+fi
+
+if [ "$ans" != "open" ]; then
+
+	devNode="/dev/disk0s1"
+	if [ "$1" != "" ]; then devNode="$1" ; fi
+
+	sudo mount_msdos "$devNode" /Volumes/ESP
+
+fi
+
+open /Volumes/ESP

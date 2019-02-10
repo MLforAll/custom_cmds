@@ -1,0 +1,72 @@
+#!/bin/sh
+
+rip()
+{
+	if [ -z "$1" ]
+	then
+		echo
+		echo "Enter the IP address :"
+		read ipaddr
+	else
+		ipaddr="$1"
+	fi
+	echo
+	ssh-keygen -f ~/.ssh/known_hosts -R "$ipaddr"
+	echo
+	
+	[ -f ~/.ssh/known_hosts.old ] || return 0
+
+	echo "Remove known_hosts.old ?"
+	read rmOld
+	echo
+	if [ "$rmOld" = yes ]
+	then
+		rm ~/.ssh/known_hosts.old
+	elif [ "$rmOld" != no ]
+	then
+		echo
+		echo "Invalid input! Taking it as a 'no'..."
+		echo
+	fi
+}
+
+if [ -z "$1" ]
+then
+	echo
+	echo 'Open the file or delete the .ssh folder (rmall/open)?'
+	read action
+	echo
+else
+	action="$1"
+fi
+
+case "$action" in
+
+	open )
+		open ~/.ssh/known_hosts
+		;;
+
+	rmall )
+		rm -rf ~/.ssh
+		;;
+
+	sopen )
+		pico ~/.ssh/known_hosts
+		;;
+
+	rip )
+		rip "$2"
+		;;
+	
+	* )
+		echo 'Unknown action! Aborting!'
+		echo
+		exit 1
+		;;
+esac
+
+if [ -z "$1" ]
+then
+	echo "Done!"
+	echo
+fi

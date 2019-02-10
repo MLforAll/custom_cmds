@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ "$1" == "" -o "$2" == "" ]; then
+	echo "Usage: $(basename $0) /path/to/file1 /path/to/file2"
+	exit 1
+elif [ ! -f "$1" -o ! -f "$2" ]; then
+	echo "$(basename $0): No such file or directory!"
+	exit 1
+fi
+
+if [ "$(uname)" == "Darwin" ]; then
+	md5_f1=$(md5 "$1" | awk '{print $NF}')
+	md5_f2=$(md5 "$2" | awk '{print $NF}')
+elif [ "$(uname)" == "Linux" ]; then
+	md5_f1=$(md5sum "$1" | awk '{print $1}')
+	md5_f2=$(md5sum "$2" | awk '{print $1}')
+else
+	echo "$(basename $0): Unsupported paltform!"
+	exit 1
+fi
+
+echo "md5: $1: $md5_f1"
+echo "md5: $2: $md5_f2"
+
+if [ "$md5_f1" == "$md5_f2" ]; then
+	echo "Files have the same md5 hash!"
+else
+	echo "Files have diff hashes! Not the same!"
+fi

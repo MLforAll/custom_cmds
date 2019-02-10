@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+sudo port selfupdate &&
+sudo port upgrade outdated

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Rebooting computer..."
+osascript -e 'tell application "Finder" to restart'

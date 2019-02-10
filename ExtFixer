@@ -1,0 +1,81 @@
+#!/bin/sh
+
+# FUNC(S)
+
+errMsgExitCode1 () { # Takes 3 args : $1 = msg | $2 = sleepTime | $3 = global $1
+	echo "$1"
+	echo "Aborting..."
+	if [ "$2" == "" ]; then sleepTime="1"; else sleepTime="$2"; fi
+	sleep $sleepTime
+	if [ "$3" == "" ]; then echo ""; fi
+	exit 1
+}
+
+# SCRIPT
+
+if [ "$1" == "" ]; then
+
+	echo ""
+	echo "========================================================"
+	echo "     SYSTEM EXTENSION FOLDER FIXER FOR OS X (10.6+)     "
+	echo "                    By @MLforAll          			  "
+	echo "========================================================"
+	echo ""
+
+	read -p "Type volume name : " volumename
+	echo ""
+
+else
+	volumename="$1"
+fi
+
+os_ver=$(defaults read /System/Library/CoreServices/SystemVersion.plist ProductVersion)
+IFS="." read -ra os_ver_strcomponents <<< "$os_ver"
+if [ "${os_ver_strcomponents[1]}" -lt 12 ]; then
+	os_name="OS X"
+else
+	os_name="macOS"
+fi
+
+if [ "$volumename" == "/" ]; then
+	diskutil info -plist / > /tmp/rootVolInfos.plist
+	volumename=$(defaults read /tmp/rootVolInfos.plist VolumeName)
+	rm /tmp/rootVolInfos.plist
+fi
+
+if [ ! -f "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" ]; then
+	errMsgExitCode1 "Invalid input!" 1 "$1"
+fi
+
+dest_osver=$(defaults read "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" ProductVersion)
+IFS="." read -ra dest_osver_strcomponents <<< "$dest_osver"
+if [ "${dest_osver_strcomponents[1]}" -lt 6 ]; then
+	errMsgExitCode1 "This script only works on Mac OS X Snow Leopard (10.6) or newer!" 1 "$1"
+fi	
+	
+sudo -p "Type your $os_name admin password : " chmod -R 755 "/Volumes/$volumename/System/Library/Extensions" || exit 1
+echo ""
+echo ">> CHMOD COMPLETE"
+sudo chown -R root:wheel "/Volumes/$volumename/System/Library/Extensions"
+echo ">> CHOWN COMPLETE"
+sudo touch "/Volumes/$volumename/System/Library/Extensions"
+echo ">> TOUCH COMPLETE"
+echo ""
+if [ ! -d "/Volumes/$volumename/System/Library/Caches" ] ; then sudo mkdir "/Volumes/$volumename/System/Library/Caches" ; fi
+if [ ! -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches" ]; then sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches" ; fi
+if [ ! -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup" ]; then sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup" ; fi
+if [ -f "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ]; then sudo rm "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ; fi
+if [ -f "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel" ]; then sudo rm "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel" ; fi
+sudo kextcache -f -update-volume "/Volumes/$volumename"
+echo ""
+echo ">> KEXTCACHE COMPLETE"
+echo ""
+	
+if [ "$1" == "" ]; then
+
+	echo "Done !"
+	echo ""
+
+	sleep 2
+
+fi

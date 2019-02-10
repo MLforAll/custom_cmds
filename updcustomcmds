@@ -7,7 +7,9 @@ fatal()
 	exit $2
 }
 
-ccpath=$(dirname "$PROJPATH")/custom_cmds
+my_path=$(which updcustomcmds)
+[ -z "$my_path" ] && fatal 'my_path cannot be empty!'
+ccpath=$(dirname "$my_path")
 
 [ -d "$ccpath" ] || fatal "$ccpath not found!"
 

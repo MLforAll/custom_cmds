@@ -1,27 +1,29 @@
 #!/bin/sh
 
-if [ "$1" == "" ]; then
+[ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
+
+if [ -z "$1" ]; then
 	echo ""
 	echo "Dir of .app :"
 	read dapp
 else
 	dapp="$1"
 fi
-if [ "$2" == "" ]; then
+if [ -z "$2" ]; then
 	echo ""
 	echo "Current name of .app :"
 	read cname
 else
 	cname="$2"
 fi
-if [ "$3" == "" ]; then
+if [ -z "$3" ]; then
 	echo ""
 	echo "New name :"
 	read nname
 else
 	nname="$3"
 fi
-if [ "$4" == "" ]; then
+if [ -z "$4" ]; then
 	donetext="Done !"
 else
 	donetext="$4"

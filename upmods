@@ -41,8 +41,26 @@ echo "#                                    #"
 echo "######################################"
 printf \\n
 
+# Not macOS Warning
+if [ $(uname) != Darwin ]
+then
+	echo 'upmods has not been tested on anything else than macOS'
+	read -e -p 'Run anyway? (y/N): ' runany
+	runany=$(tr '[:upper:]' '[:lower:]' <<< "$runany")
+	if [ -z "$runany" -o "$runany" = 'n' ]
+	then
+		echo 'Piuf, bybye!'
+		exit 0
+	elif [ "$runany" != 'y' ]
+	then
+		echo 'Invalid input! Aborting...'
+		exit 1
+	fi
+	unset runany
+fi
+
 # Input file?
-if [ "$1" != "" ]; then
+if [ ! -z "$1" ]; then
 	inputFile="$1"
 	inputFileFolderPath=`dirname "$inputFile"`
 	cd $inputFileFolderPath

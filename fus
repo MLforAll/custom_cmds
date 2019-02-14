@@ -1,2 +1,5 @@
 #!/bin/sh
+
+[ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
+
 /System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend

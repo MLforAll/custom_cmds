@@ -1,4 +1,7 @@
 #!/bin/sh -e
 
+[ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
+[ ! -z "$(which port)" ] || { echo 'port command could not be found!' >&2; exit 1; }
+
 sudo port selfupdate &&
 sudo port upgrade outdated

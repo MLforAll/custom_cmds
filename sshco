@@ -13,7 +13,7 @@ rip()
 	echo
 	ssh-keygen -f ~/.ssh/known_hosts -R "$ipaddr"
 	echo
-	
+
 	[ -f ~/.ssh/known_hosts.old ] || return 0
 
 	echo "Remove known_hosts.old ?"
@@ -33,7 +33,7 @@ rip()
 if [ -z "$1" ]
 then
 	echo
-	echo 'Open the file or delete the .ssh folder (rmall/open)?'
+	echo 'Open the file or delete the .ssh folder (open/rmall/sopen/rip)?'
 	read action
 	echo
 else
@@ -43,7 +43,14 @@ fi
 case "$action" in
 
 	open )
-		open ~/.ssh/known_hosts
+		if [ $(uname) = Darwin ]
+		then
+			comm=open
+		else
+			comm=xdg-open
+		fi
+		$comm ~/.ssh/known_hosts
+		unset comm
 		;;
 
 	rmall )
@@ -57,7 +64,7 @@ case "$action" in
 	rip )
 		rip "$2"
 		;;
-	
+
 	* )
 		echo 'Unknown action! Aborting!'
 		echo

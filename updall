@@ -3,7 +3,7 @@
 echo "Updating all projects"
 for p in *
 do
-	if [ ! -d "$p" ]; then
+	if [ ! -d "$p/.git" ]; then
 		continue
 	fi
 	echo

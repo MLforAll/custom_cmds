@@ -1,12 +1,39 @@
 #!/bin/sh
 
-echo "Updating all projects"
-for p in *
-do
-	if [ ! -d "$p/.git" ]; then
-		continue
-	fi
-	echo
-	echo "Updating project: $p"
-	git -C "$p" pull
-done
+updall_dir()
+{
+	local disp_dir="$1"
+	[ $disp_dir = '.' ] && disp_dir="$PWD"
+
+	echo "Updating all projects in dir: $disp_dir"
+
+	# For Recursive
+	local dirs=()
+
+	for p in $1/*
+	do
+		[ -d "$p" -a ! -d "$p/.git" ] && dirs+=("$p")
+
+		if [ ! -d "$p/.git" ]; then
+			continue
+		fi
+
+		echo
+		echo "Updating project: $p"
+		git -C "$p" pull
+	done
+
+	# If recursive mode is not enabled, we stop there
+	[ "$2" != recursive ] && return 0
+
+	# Loop thru all folders we saw that aren't git repos
+	# Call ourselves one more time
+	for rec in "${dirs[@]}"
+	do
+		updall_dir "$rec" $2
+	done
+}
+
+[ "$1" = '-r' ] && RECURSIVE=recursive
+
+updall_dir . $RECURSIVE

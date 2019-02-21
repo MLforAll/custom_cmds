@@ -2,10 +2,9 @@
 
 updall_dir()
 {
+	local should_disp=1
 	local disp_dir="$1"
 	[ $disp_dir = '.' ] && disp_dir="$PWD"
-
-	echo "Updating all projects in dir: $disp_dir"
 
 	# For Recursive
 	local dirs=()
@@ -16,6 +15,12 @@ updall_dir()
 
 		if [ ! -d "$p/.git" ]; then
 			continue
+		fi
+
+		if [ $should_disp -eq 1 ]
+		then
+			echo "Updating all projects in dir: $disp_dir"
+			should_disp=0
 		fi
 
 		echo
@@ -30,6 +35,7 @@ updall_dir()
 	# Call ourselves one more time
 	for rec in "${dirs[@]}"
 	do
+		[ $should_disp -eq 0 ] && echo
 		updall_dir "$rec" $2
 	done
 }

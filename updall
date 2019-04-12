@@ -19,7 +19,7 @@ updall_dir()
 
 		if [ $should_disp -eq 1 ]
 		then
-			echo "Updating all projects in dir: $disp_dir"
+			printf "\033[1;36mOpen dir: $disp_dir\033[0;39m\n"
 			should_disp=0
 		fi
 
@@ -28,6 +28,7 @@ updall_dir()
 		git -C "$p" pull
 	done
 
+	printf "\033[1;36mClose dir: $disp_dir\033[0;39m\n"
 	# If recursive mode is not enabled, we stop there
 	[ "$2" != recursive ] && return 0
 

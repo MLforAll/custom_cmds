@@ -35,7 +35,6 @@ updall_dir()
 	# Call ourselves one more time
 	for rec in "${dirs[@]}"
 	do
-		[ $should_disp -eq 0 ] && echo
 		updall_dir "$rec" $2
 	done
 

@@ -1,0 +1,19 @@
+#!/bin/sh
+
+os=$(uname)
+if [ "$os" != Darwin ]
+then
+	echo "$os not supported" >&2
+	exit 1
+fi
+
+src="$1"
+mp="$2"
+
+if [ ! -d "$mp" ]
+then
+	sudo -p "$(hostname)'s admin password" mkdir "$mp" && sudo chown -R "$(id -u):$(id -g)" "$mp"
+	[ $? -eq 0 ] || exit 1
+fi
+
+sshfs "$src" "$mp"

@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# Check os
 os=$(uname)
 if [ "$os" != Darwin ]
 then
@@ -7,13 +8,40 @@ then
 	exit 1
 fi
 
+# Check sshfs command
+if ! which sshfs >/dev/null 2>&1
+then
+	echo 'sshfs command not found. Please install it' >&2
+	exit 1
+fi
+
+# Check 1st Argument (source)
+if [ -z "$1" ]
+then
+	echo 'Missing source (format is [user@]host[:port])' >&2
+	exit 1
+fi
+
+# Check 2nd Argument (dest)
+if [ -z "$2" ]
+then
+	{
+		echo 'Missing destination (format is /path/to/dest)'
+		echo "Note: If dest doesn't exit, it'll be created"
+	} >&2
+	exit 1
+fi
+
+# Variables
 src="$1"
 mp="$2"
 
+# If dest doesn't exist, create it (exit if that fails)
 if [ ! -d "$mp" ]
 then
-	sudo -p "$(hostname)'s admin password" mkdir "$mp" && sudo chown -R "$(id -u):$(id -g)" "$mp"
+	sudo -p "$(hostname)'s admin password: " mkdir "$mp" && sudo chown -R "$(id -u):$(id -g)" "$mp"
 	[ $? -eq 0 ] || exit 1
 fi
 
+# Mount FS with sshfs
 sshfs "$src" "$mp"

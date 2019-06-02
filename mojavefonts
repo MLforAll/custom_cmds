@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [ "$(uname)" != Darwin ]
+then
+	echo 'uname(1) reports you are not running Darwin!'
+	exit 1
+fi
+
+if [ "$(sw_vers -productVersion | cut -d. -f2)" != 14 ]
+then
+	echo 'You are not running macOS 10.14 Mojave!'
+	exit 1
+fi
+
+# TODO: Improve this shit
+
+read -s -n 1 -p 'Enter AppleFontSmoothing Value (0/1/2/3/-): ' fontsmooth; echo
+if [ "$fontsmooth" != c ]
+then
+	if [ "$fontsmooth" = '-' ]
+	then
+		echo 'Reverting AppleFontSmoothing to default'
+		defaults -currentHost delete -g AppleFontSmoothing
+	else
+		echo "Setting AppleFontSmoothing to $fontsmooth"
+		defaults -currentHost write -g AppleFontSmoothing -int $fontsmooth
+	fi
+else
+	echo 'Skipping...'
+fi
+
+echo
+
+read -s -n 1 -p 'Enable Subpixel AntiAliasing (0/1): ' saa; echo
+if [ "$saa" != c ]
+then
+	if [ "$saa" = 0 ]
+	then
+		echo 'Reverting Subpixel AntiAliasing to default'
+		defaults delete -g CGFontRenderingFontSmoothingDisabled
+	else
+		echo 'Enabling Subpixel AntiAliasing'
+		defaults write -g CGFontRenderingFontSmoothingDisabled -bool NO
+	fi
+else
+	echo 'Skipping...'
+fi

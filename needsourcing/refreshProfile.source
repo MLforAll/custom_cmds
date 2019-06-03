@@ -1,0 +1,33 @@
+#!/bin/bash
+
+refreshProfile()
+{
+	kern=$(uname)
+	unset PATH
+
+	echo "Refreshing bash's profile"
+
+	# macOS / OS X
+	if [ "$kern" = Darwin ]
+	then
+		if [ -z "$OLDPATH" ]
+		then
+			eval "$(/usr/libexec/path_helper)"
+		else
+			export PATH="$OLDPATH"
+		fi
+
+		source ~/.bash_profile
+		return 0
+	fi
+
+	# Linux (& Others)
+	if [ -z "$OLDPATH" ]
+	then
+		source /etc/environment
+	else
+		export PATH="$OLDPATH"
+	fi
+
+	source ~/.bashrc
+}

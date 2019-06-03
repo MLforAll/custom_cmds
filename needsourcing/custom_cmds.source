@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if ! echo "$SHELL" | grep bash >/dev/null 2>&1
+then
+	echo 'Not running bash'
+	return 1
+fi
+
+if [ -z "$BASH_SOURCE" -o "$BASH_SOURCE" = "$0" ]
+then
+	echo 'Not sourcing'
+	echo 'Exiting...'
+	exit 1
+fi
+
+# Backups
+OLDPATH="$PATH"
+
+# Variables
+selfname=$(basename "$BASH_SOURCE")
+sourcingCmdsPath=$(dirname "$BASH_SOURCE")
+cmdsPath=$(dirname "$sourcingCmdsPath")
+
+# Export cmds to PATH
+export PATH="$cmdsPath:$PATH"
+
+# Source all other files
+for f in "$sourcingCmdsPath"/*.source
+do
+	basef=$(basename "$f")
+	[ "$basef" != "$selfname" ] || continue
+
+	source "$f"
+done
+unset f basef
+
+# Unset all variables
+unset selfname sourcingCmdsPath cmdsPath

@@ -46,7 +46,7 @@ my_question()
 		echo "Reverting $1 to default"
 		defaults $5 delete -g "$1"
 	else
-		echo "Setting AppleFontSmoothing to $ans"
+		echo "Setting $1 to $ans"
 		defaults $5 write -g "$1" $4 $ans
 	fi
 }

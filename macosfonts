@@ -1,0 +1,64 @@
+#!/bin/bash
+
+if [ "$(uname)" != Darwin ]
+then
+	echo 'uname(1) reports you are not running Darwin!' >&2
+	exit 1
+fi
+
+version="$(sw_vers -productVersion | cut -d. -f2)"
+if [ -z "$version" ]
+then
+	echo 'Error getting macOS version' >&2
+	exit 1
+fi
+if [ $version -lt 13 ]
+then
+	echo 'You are not running macOS 10.14 Mojave!' >&2
+	exit 1
+fi
+
+# TODO: Improve this shit
+
+# 1. key
+# 2. possible
+# 3. 1/0
+# 4. type
+# 5. opt
+my_question()
+{
+	local ans
+
+	local args="-s -n $3"
+	if [ $3 -ne 1 ]; then args=''; fi
+
+	read $args -p "Enter $1 Value ($2/-): " ans
+	if [ $3 -eq 1 ]; then echo; fi
+
+	if [ "$ans" = c ]
+	then
+		echo 'Skipping...'
+		return 0
+	fi
+
+	if [ "$ans" = '-' ]
+	then
+		echo "Reverting $1 to default"
+		defaults $5 delete -g "$1"
+	else
+		echo "Setting AppleFontSmoothing to $ans"
+		defaults $5 write -g "$1" $4 $ans
+	fi
+}
+
+# AppleFontSmoothing
+my_question AppleFontSmoothing 0/1/2/3 1 -int -currentHost
+
+# Quit if not on Mojave+
+[ $version -gt 13 ] || exit
+
+# Separator
+echo
+
+# CGFontRenderingFontSmoothingDisabled
+my_question CGFontRenderingFontSmoothingDisabled true/false 0 -bool

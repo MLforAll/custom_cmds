@@ -2,7 +2,7 @@
 
 fatal()
 {
-	echo "\033[1;39m$1\033[0;39m" 1>&2
+	printf "\033[1;39m%s\033[0;39m\n" "$1" >&2
 	[ -z "$2" ] && exit 1
 	exit $2
 }
@@ -13,5 +13,5 @@ ccpath=$(dirname "$my_path")
 
 [ -d "$ccpath" ] || fatal "$ccpath not found!"
 
-echo "\033[1;32mUpdating custom_cmds at '$ccpath'\033[0;39m"
+printf "\033[1;32m%s\033[0;39m\n" "Updating custom_cmds at '$ccpath'"
 git -C "$ccpath" pull

@@ -12,9 +12,9 @@ then
 	echo 'Error getting macOS version' >&2
 	exit 1
 fi
-if [ $version -lt 13 ]
+if [ $version -lt 6 ]
 then
-	echo 'You are not running macOS 10.14 Mojave!' >&2
+	echo 'You are not running Mac OS X 10.6 Snow Leopard or later!' >&2
 	exit 1
 fi
 

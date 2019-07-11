@@ -17,9 +17,14 @@ git status
 echo
 
 read -e -p "Message or \`\`abort'': " msg
-[ "$msg" = "abort" ] && byebye
+[ "$msg" = abort ] && byebye
 
-git commit -m "$msg"
+if [ "$msg" = edit ]
+then
+	git commit
+else
+	git commit -m "$msg"
+fi
 echo
 
 git push

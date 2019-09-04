@@ -1,0 +1,18 @@
+#!/bin/bash
+
+resetShell()
+{
+	local loginShell=/bin/bash
+
+	case "$(uname)" in
+		Darwin )
+			loginShell=$(dscl -q . -read "/Users/$USER" UserShell | sed 's/^.*: //g')
+			;;
+		Linux )
+			loginShell=$(getent passwd "$USER" | cut -d: -f7)
+			;;
+	esac
+
+	echo "Relaunching $loginShell"
+	exec "$loginShell"
+}

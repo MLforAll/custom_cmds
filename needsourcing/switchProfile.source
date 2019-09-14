@@ -1,0 +1,19 @@
+#!/bin/bash
+
+switchProfile()
+{
+	local rcfile="$1"; [ ! -z "$rcfile" ] || { echo 'usage: switchProfile /path/to/rcfile' >&2; return 1; }
+	local loginShell=/bin/bash
+
+	case "$(uname)" in
+		Darwin )
+			loginShell=$(dscl -q . -read "/Users/$USER" UserShell | sed 's/^.*: //g')
+			;;
+		Linux )
+			loginShell=$(getent passwd "$USER" | cut -d: -f7)
+			;;
+	esac
+
+	echo "Relaunching $loginShell with rcfile $rcfile"
+	exec "$loginShell" --rcfile "$rcfile"
+}

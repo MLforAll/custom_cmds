@@ -24,7 +24,7 @@ updall_dir()
 		fi
 
 		echo "Updating project: $p"
-		git -C "$p" pull
+		( eval "git -C '$p' pull" )
 	done
 
 	# If recursive mode is not enabled, we stop there

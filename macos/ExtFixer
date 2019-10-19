@@ -51,21 +51,20 @@ fi
 
 alias sudo='sudo -p "Type your $os_name admin password: "'
 
-if [ $os_ver -gt 14 ]
+if [ $os_ver -gt 14 -a "$volumename" = '/' ]
 then
 	sudo mount -uw /
 	echo '>> REMOUNT COMPLETE'
 fi
 
-if [ "$volumename" == '/' ]; then
+if [ "$volumename" = '/' ]
+then
 	diskutil info -plist / > /tmp/rootVolInfos.plist
 	volumename=$(/usr/libexec/PlistBuddy -c 'Print :VolumeName' /tmp/rootVolInfos.plist)
 	rm /tmp/rootVolInfos.plist
 fi
 
-if [ ! -f "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" ]; then
-	errMsgExitCode1 "Invalid input!" 1 "$1"
-fi
+[ -f "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" ] || errMsgExitCode1 "Invalid input!" 1 "$1"
 
 dest_osver=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" | cut -d. -f2)
 [ $dest_osver -gt 5 ] || errMsgExitCode1 'This script only works on Mac OS X Snow Leopard (10.6) or newer!' 1 "$1"

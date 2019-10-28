@@ -1,0 +1,63 @@
+#!/bin/bash
+
+binstrpatch() # Thanks to https://everydaywithlinux.blogspot.com/2012/11/patch-strings-in-binary-files-with-sed.html
+{
+	local tool
+	for tool in xxd hexdump
+	do
+		which "$tool" >/dev/null 2>&1 ||
+		{
+			echo "Missing Tool: $tool" >&2
+			return 1
+		}
+	done
+	unset tool
+
+	# args
+	local file="$1"
+	local find="$2"
+	local replace="$3"
+
+	# Vars / Create null terminated ASCII HEX representations of the strings
+	local tmpfile="$file.tmp"
+	local findHex=$(echo -n "$find" | xxd -g 0 -u -ps -c 256)00
+	local replaceHex=$(echo -n "$replace" | xxd -g 0 -u -ps -c 256)00
+
+	# Check wether this method is compatible with length of replace
+	if [ ${#replaceHex} -gt ${#findHex} ]
+	then
+		echo "Replacement string '$replace' is longer than find string '$find'"
+		return 1
+	fi
+
+	# Pad the replacement string with null terminations so the
+	# length matches the original string
+	while [ ${#replaceHex} -lt ${#findHex} ]
+	do
+		replaceHex="${replaceHex}00"
+	done
+
+	# Make tmpfile (a copy of file with strings replaced)
+	hexdump -ve '1/1 "%.2X"' "$file" | sed "s/$findHex/$replaceHex/g" | xxd -r -p > "$tmpfile"
+	[ $(stat -f '%z' "$tmpfile") -eq $(stat -f '%z' "$file") ] ||
+	{
+		echo "$tmpfile size not the same as $file" >&2
+		return 1
+	}
+
+	# Give tmpfile proper permissions and replace file with it
+	chmod $(stat -f '%p' "$file") "$tmpfile"
+	rm -f "$file"
+	mv "$tmpfile" "$file"
+}
+
+fatal()
+{
+	echo "$1" >&2
+	exit 1
+}
+
+[ -f "$1" ] || fatal "$1 must be a file"
+[ ! -z "$2" ] || fatal '2nd arg must be what to find'
+[ ! -z "$3" ] || fatal '2nd arg must be what to replace'
+binstrpatch "$1" "$2" "$3"

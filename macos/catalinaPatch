@@ -1,0 +1,35 @@
+#!/bin/sh
+
+fatal()
+{
+	echo "$1" >&2
+	exit 1
+}
+
+[ $(id -u) -eq 0 ] || fatal 'This tool must be run as root'
+
+sudoPath=/etc/pam.d/sudo
+sudocPath=/etc/pam.d/sudo_custom
+if [ -f "$sudocPath" ]
+then
+	echo '==> Replacing sudo pam service'
+	rm -f "$sudoPath"
+	ln -s "$sudocPath" "$sudoPath"
+fi
+
+bakbashPath=/usr/local/bin/bash
+bashPath=/bin/bash
+if [ -f "$bakbashPath" ]
+then
+	echo '==> Replacing bash'
+	if diff "$bashPath" "$bakbashPath" >/dev/null 2>&1
+	then
+		echo "$bakbashPath and $bashPath are identical..."
+	else
+		mount -uw / || fatal 'Could not remount rootfs'
+		rm -f "$bashPath"
+		cp "$bakbashPath" "$bashPath"
+		chown root:wheel "$bashPath"
+		chmod 0555 "$bashPath"
+	fi
+fi

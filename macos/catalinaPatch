@@ -33,3 +33,23 @@ then
 		chmod 0555 "$bashPath"
 	fi
 fi
+
+catalinaLS=/Library/CatalinaLockscreen.jpg
+loginuikit=/System/Library/PrivateFrameworks/LoginUIKit.framework/Versions/A/LoginUIKit
+if [ -f "$catalinaLS" ]
+then
+	echo '==> Replacing Lockscreen Picture'
+	cp -a "$loginuikit" "${loginuikit}_"
+	binstrpatch "$loginuikit" /System/Library/CoreServices/DefaultDesktop.heic "$catalinaLS"
+	codesign -f -s - "$loginuikit"
+	read -p 'Test fus (y/n) ' testfus
+	if [ "$testfus" = y -o "$testfus" = Y ]
+	then
+		fus
+		read -p 'Remove backup? (y/n) ' rmbackup
+		if [ "$rmbackup" = y -o "$rmbackup" = Y ]
+		then
+			rm -f "${loginuikit}_"
+		fi
+	fi
+fi

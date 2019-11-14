@@ -1,24 +1,49 @@
 #!/bin/sh
 
+# Run on macOS check
 [ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
 
-if [ -d /Volumes/ESP ]; then
-	echo ""
-	echo "There is already a 'ESP' folder! Now what? (rm/use/open)"
-	read ans
-	echo ""
-	if [ "$ans" == "rm" ]; then sudo rm -R /Volumes/ESP ; fi
+# Args Pre
+noopen=0
+if [ "$1" = '-n' ]
+then
+	noopen=1
+	shift
+fi
+
+# Create MP
+if [ -d /Volumes/ESP ]
+then
+	read -p "There is already a 'ESP' folder! Now what? (rm/use/open) " ans
+	if [ "$ans" = rm ]
+	then
+		sudo rm -R /Volumes/ESP
+	fi
 else
 	sudo mkdir /Volumes/ESP
 fi
 
-if [ "$ans" != "open" ]; then
-
+# Mount
+if [ "$ans" != open ]
+then
 	devNode="/dev/disk0s1"
-	if [ "$1" != "" ]; then devNode="$1" ; fi
-
+	[ -z "$1" ] || devNode="$1"
 	sudo mount_msdos "$devNode" /Volumes/ESP
-
 fi
 
-open /Volumes/ESP
+# Open 1/2
+openESP=n
+if [ $noopen -eq 0 ]
+then
+	read -p 'Open /Volumes/ESP (y/n) ' openESP
+fi
+
+# Open 2/2
+if [ "$openESP" = y -o "$openESP" = Y ]
+then
+	open /Volumes/ESP
+else
+	echo 'Contents of /Volumes/ESP:'
+	ls -lhG /Volumes/ESP
+	exit 0
+fi

@@ -42,10 +42,10 @@ then
 	cp -a "$loginuikit" "${loginuikit}_"
 	binstrpatch "$loginuikit" /System/Library/CoreServices/DefaultDesktop.heic "$catalinaLS"
 	codesign -f -s - "$loginuikit"
-	read -p 'Test fus (y/n) ' testfus
+	read -p 'Go to lockscreen to test (requires fus utility) (y/n) ' testfus
 	if [ "$testfus" = y -o "$testfus" = Y ]
 	then
-		fus
+		fus && sleep 5
 		read -p 'Remove backup? (y/n) ' rmbackup
 		if [ "$rmbackup" = y -o "$rmbackup" = Y ]
 		then

@@ -6,5 +6,5 @@ switchProfile()
 	local loginShell=$(user_login_shell)
 
 	echo "Relaunching $loginShell with rcfile $rcfile"
-	exec "$loginShell" --rcfile "$rcfile"
+	exec "$loginShell" -l --rcfile "$rcfile"
 }

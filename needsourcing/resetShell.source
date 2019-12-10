@@ -5,5 +5,5 @@ resetShell()
 	local loginShell=$(user_login_shell)
 
 	echo "Relaunching $loginShell"
-	exec "$loginShell"
+	exec "$loginShell" -l
 }

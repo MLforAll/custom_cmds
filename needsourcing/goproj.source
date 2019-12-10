@@ -1,0 +1,20 @@
+# Default Paths
+PROJPATH42="$HOME/Documents/42/projects"
+PROJPATHMACOS="$HOME/Documents/Projects/macOS"
+PROJPATHIOS="$HOME/Documents/Projects/iOS"
+PROJPATHWEB="$HOME/Documents/Projects/Web"
+PROJPATHSYSADMIN="$HOME/Documents/Projects/SysAdmin"
+PROJPATHALL="$HOME/Documents/Projects"
+
+goproj()
+{
+	local dir="$1"; [ ! -z "$dir" ] || dir=macOS
+	local evar=\$PROJPATH$(echo "$dir" | tr '[:lower:]' '[:upper:]')
+	local evval=$(eval "echo \"$evar\"")
+
+	[ ! -z "$evval" ] || {
+		echo "$evar not defined or empty" >&2
+		return 1
+	}
+	cd "$evval"
+}

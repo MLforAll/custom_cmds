@@ -4,6 +4,16 @@ user_login_shell()
 {
 	local loginShell=/bin/bash
 
+	if which php >/dev/null 2>&1
+	then
+		loginShell=$(php -r "\$pwd = posix_getpwnam('$USER'); echo \$pwd['shell'] ?? '/bin/bash';")
+		if [ $? -eq 0 ]
+		then
+			echo "$loginShell"
+			return 0
+		fi
+	fi
+
 	case "$(uname)" in
 		Darwin )
 			loginShell=$(dscl -q . -read "/Users/$USER" UserShell | sed 's/^.*: //g')

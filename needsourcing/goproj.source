@@ -6,9 +6,12 @@ PROJPATHWEB="$HOME/Documents/Projects/Web"
 PROJPATHSYSADMIN="$HOME/Documents/Projects/SysAdmin"
 PROJPATHALL="$HOME/Documents/Projects"
 
+# Settings
+GOPROJDFLPATH=macOS
+
 goproj()
 {
-	local dir="$1"; [ ! -z "$dir" ] || dir=macOS
+	local dir="$1"; [ ! -z "$dir" ] || dir="$GOPROJDFLPATH"
 	local evar=\$PROJPATH$(echo "$dir" | tr '[:lower:]' '[:upper:]')
 	local evval=$(eval "echo \"$evar\"")
 

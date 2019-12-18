@@ -1,0 +1,12 @@
+#!/bin/sh
+[ ! -z "$1" ] || { echo 'usage: forceDarkMode app_name' >&2; exit 1; }
+
+bid=$(appid "$1")
+[ $? -eq 0 -a ! -z "$bid" ] || { echo 'appid failed!' >&2; exit 2; }
+
+if [ "$2" = revert ]
+then
+	defaults delete "$bid" NSRequiresAquaSystemAppearance
+else
+	defaults write "$bid" NSRequiresAquaSystemAppearance -bool NO
+fi

@@ -12,11 +12,11 @@ GOPROJDFLPATH=macOS
 goproj()
 {
 	local dir="$1"; [ ! -z "$dir" ] || dir="$GOPROJDFLPATH"
-	local evar=\$PROJPATH$(echo "$dir" | tr '[:lower:]' '[:upper:]')
-	local evval=$(eval "echo \"$evar\"")
+	local evn=PROJPATH$(echo "$dir" | tr '[:lower:]' '[:upper:]')
+	local evval=$(eval "echo \"\$$evn\"")
 
 	[ ! -z "$evval" ] || {
-		echo "$evar not defined or empty" >&2
+		echo "$evn variable not defined or empty" >&2
 		return 1
 	}
 	cd "$evval"

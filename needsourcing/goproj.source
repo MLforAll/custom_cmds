@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Default Paths
 PROJPATH42="$HOME/Documents/42/projects"
 PROJPATHMACOS="$HOME/Documents/Projects/macOS"

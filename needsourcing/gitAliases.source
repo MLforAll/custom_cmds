@@ -2,3 +2,4 @@
 
 alias gcl='git clone'
 alias gca='git commit --amend'
+alias gurl='git remote get-url'

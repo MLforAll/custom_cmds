@@ -6,15 +6,15 @@ if [ ! -d "$1" -o -z "$2" ]; then
 	exit 1
 fi
 
-# Check PROJPATH
-if [ ! -d "$PROJPATH" ] && [ -h "$1/libft" -o -h "$1/libftreadline" ]; then
-	echo "$0: missing \$PROJPATH env var"
+# Check PROJPATH42
+if [ ! -d "$PROJPATH42" ] && [ -h "$1/libft" -o -h "$1/libftreadline" ]; then
+	echo "$0: missing \$PROJPATH42 env var"
 	exit 1
 fi
 
-# Check libft in PROJPATH
-if [ ! -d "$PROJPATH/Libft" ] && [ -h "$1/libft" ]; then
-	echo "$0: missing Libft folder in \$PROJPATH"
+# Check libft in PROJPATH42
+if [ ! -d "$PROJPATH42/Libft" ] && [ -h "$1/libft" ]; then
+	echo "$0: missing Libft folder in \$PROJPATH42"
 	exit 1
 fi
 
@@ -33,7 +33,7 @@ rm -rf "$2/misc"
 if [ -h "$1/libft" ]; then
 	echo "Adding libft"
 	rm -f "$2/libft"
-	cp -a "$PROJPATH/Libft" "$2/libft"
+	cp -a "$PROJPATH42/Libft" "$2/libft"
 	echo "Cleaning libft"
 	rm -rf "$2/libft/.git" "$2/libft/misc" "$2/libft/objs"
 	rm -f "$2/libft/README.md" "$2/libft/auteur" "$2/libft/.oproj_config"
@@ -44,7 +44,7 @@ fi
 if [ -h "$1"/libftreadline ]; then
 	echo "Adding libftreadline"
 	rm -f "$2/libftreadline"
-	cp -a "$PROJPATH/libftreadline" "$2"
+	cp -a "$PROJPATH42/libftreadline" "$2"
 	echo "Cleaning libftreadline"
 	rm -rf "$2/libftreadline/.git" "$2/libftreadline/misc" "$2/libftreadline/man" "$2/libftreadline/objs"
 	rm -f "$2/libftreadline/README.md" "$2/libftreadline/libft" "$2/libftreadline/.oproj_config"

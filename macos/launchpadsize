@@ -1,0 +1,25 @@
+#!/bin/sh
+
+setint_or_del()
+{
+	local domain="$1"
+	local arg="$2"
+	local val="$3"
+
+	if [ "$val" = - ]
+	then
+		echo "Revert $domain:$arg"
+		defaults delete "$domain" "$arg" >/dev/null 2>&1
+	else
+		echo "Set $domain:$arg to $val"
+		defaults write "$domain" "$arg" -int "$val"
+	fi
+}
+
+read -p 'Number of rows (int/-) ' nrows
+read -p 'Number of columns (int/-) ' ncols
+echo
+
+setint_or_del com.apple.dock springboard-rows "$nrows"
+setint_or_del com.apple.dock springboard-columns "$ncols"
+killall Dock

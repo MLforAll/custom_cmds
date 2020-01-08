@@ -16,10 +16,10 @@ setint_or_del()
 	fi
 }
 
-read -p 'Number of rows (int/-) ' nrows
 read -p 'Number of columns (int/-) ' ncols
+read -p 'Number of rows (int/-) ' nrows
 echo
 
-setint_or_del com.apple.dock springboard-rows "$nrows"
 setint_or_del com.apple.dock springboard-columns "$ncols"
+setint_or_del com.apple.dock springboard-rows "$nrows"
 killall Dock

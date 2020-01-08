@@ -6,7 +6,9 @@ bid=$(appid "$1")
 
 if [ "$2" = revert ]
 then
+	echo "$bid: revert"
 	defaults delete "$bid" NSRequiresAquaSystemAppearance
 else
+	echo "$bid: force Dark Mode"
 	defaults write "$bid" NSRequiresAquaSystemAppearance -bool NO
 fi

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Prompt
+updatePS1()
+{
+	local ch='\h'
+	[ -z "$PROMPT_HOSTNAME" ] || ch="$PROMPT_HOSTNAME"
+
+	export PS1=''
+	PS1+='\[\033[0;36m\]\u@'"$ch"':\[\033[0;33m\]'
+	if [ $(echo -n $PWD | /usr/bin/wc -c) -gt $(/usr/bin/bc <<< "$(/usr/bin/tput cols) / 2") ]; then
+		PS1+='\W'
+	else
+		PS1+='\w'
+	fi
+	PS1+='\[\033[0;39m\]\$ '
+}
+PROMPT_COMMAND='updatePS1'

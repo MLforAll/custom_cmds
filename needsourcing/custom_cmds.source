@@ -44,11 +44,18 @@ unset speCmdsPath
 for f in "$sourcingCmdsPath"/*.source
 do
 	basef=$(basename "$f")
+	namef=$(basename -s .source "$f")
 	[ "$basef" != "$selfname" ] || continue
-
+	if [ ! -z "$CUSTOM_CMDS_IGNORE" ]
+	then
+		for ignore in "$CUSTOM_CMDS_IGNORE"
+		do
+			[ "$ignore" != "$namef" ] || continue 2
+		done; unset ignore
+	fi
 	source "$f"
 done
-unset f basef
+unset f basef namef
 
 # Unset all variables
 unset selfname sourcingCmdsPath cmdsPath

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Language
+export LANGUAGE=en_US.UTF-8
+
+# ls colors
+export CLICOLOR=1
+export LSCOLORS=ExFxBxDxCxegedabagacad
+
+# ls aliases
+alias ls='ls -GF'
+alias ll='ls -l'
+alias llh='ls -lh'
+alias lla='ls -la'
+alias llah='ls -lah'
+
+# make aliases
+alias mkfc='make fclean'
+alias mkfcp='make fcleanp'
+alias mkc='make clean'
+alias mkcp='make cleanp'
+
+# When command starts with whitespace, it doesn't get written to history
+export HISTCONTROL=ignoreboth

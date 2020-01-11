@@ -2,6 +2,7 @@
 
 # Language
 export LANGUAGE=en_US.UTF-8
+export LC_TIME=C
 
 # ls colors
 export CLICOLOR=1

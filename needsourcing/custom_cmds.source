@@ -51,11 +51,11 @@ do
 		for ignore in "$CUSTOM_CMDS_IGNORE"
 		do
 			[ "$ignore" != "$namef" ] || continue 2
-		done; unset ignore
+		done
 	fi
 	source "$f"
 done
-unset f basef namef
+unset f basef namef ignore
 
 # Unset all variables
 unset selfname sourcingCmdsPath cmdsPath

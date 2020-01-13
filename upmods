@@ -9,37 +9,38 @@
 # v4: Now supports not providing a upfiles file (i.e pushing to github) and filters .dSYM
 # v4.5: Filters prgm name from Makefile's NAME variable
 # v4.6: Fix with prgm name filter via Makefile's NAME variable
+# v4.7: Fix git commit with editor + check quotes and syntax
 
 # CLRS
-BLACKCLR="\033[0;30m"
-WHITECLR="\033[0;37m"
-ORANGECLR="\033[0;33m"
-REDCLR="\033[0;31m"
-BLUECLR="\033[0;34m"
-CYANCLR="\033[0;36m"
-PURPLECLR="\033[0;35m"
-GREENCLR="\033[0;32m"
-DEFAULTCLR="\033[0;39m"
+BLACKCLR='\033[0;30m'
+WHITECLR='\033[0;37m'
+ORANGECLR='\033[0;33m'
+REDCLR='\033[0;31m'
+BLUECLR='\033[0;34m'
+CYANCLR='\033[0;36m'
+PURPLECLR='\033[0;35m'
+GREENCLR='\033[0;32m'
+DEFAULTCLR='\033[0;39m'
 
 # FCTS
 matene_msg()
 {
-	echo "Okay!"
+	echo 'Okay!'
 	echo "You'll take care of that later!"
-	echo "Mate ne!"
+	echo 'Mate ne!'
 	exit 0
 }
 
 # My header
-echo "######################################"
-echo "#                                    #"
-echo "#           --- upmods ---           #"
-echo "#                                    #"
-echo "#      GiT repos mgmt made easy!     #"
-echo "#       kdumarai@student.42.fr       #"
-echo "#                                    #"
-echo "######################################"
-printf \\n
+echo '######################################'
+echo '#                                    #'
+echo '#           --- upmods ---           #'
+echo '#                                    #'
+echo '#      GiT repos mgmt made easy!     #'
+echo '#       kdumarai@student.42.fr       #'
+echo '#                                    #'
+echo '######################################'
+echo
 
 # Not macOS Warning
 if [ $(uname) != Darwin ]
@@ -73,10 +74,10 @@ for r in $(git remote show)
 do
 
 	# Remote mode?
-	rmode="unsupported"
-	[ "$r" == "vogsphere" -o "$r" == "personal" ] && rmode="$r"
-	[ "$rmode" == "unsupported" ] && [ "`git remote get-url origin | grep vogsphere`" != "" ] && rmode="vogsphere"
-	[ "$rmode" == "unsupported" ] && [ "`git remote get-url origin | grep vogsphere`" == "" ] && rmode="personal"
+	rmode=unsupported
+	[ "$r" = vogsphere -o "$r" = personal ] && rmode="$r"
+	[ "$rmode" = unsupported ] && [ ! -z "`git remote get-url origin | grep vogsphere`" ] && rmode=vogsphere
+	[ "$rmode" = unsupported ] && [ -z "`git remote get-url origin | grep vogsphere`" ] && rmode=personal
 	if [ "$rmode" == "unsupported" ]; then
 		if [ "$r" == "origin" ]; then
 			echo "${REDCLR}Undefined error!${DEFAULTCLR}"
@@ -104,20 +105,22 @@ do
 	fi
 
 	# Input file (vogsphere)?
-	if [ "$1" == "" ] && [ "$rmode" == "vogsphere" ]; then
-		while [ ! -f "$inputFile" ] && [ "$inputFile" != "abort" ]; do read -e -p "Where is located your input file? " inputFile; done
-		if [ "$inputFile" == "abort" ]; then
-			printf \\n
-			echo "Okay, aborting..."
+	if [ -z "$1" ] && [ "$rmode" = vogsphere ]; then
+		while [ ! -f "$inputFile" ] && [ "$inputFile" != abort ]; do
+			read -e -p 'Where is located your input file? ' inputFile
+		done
+		if [ "$inputFile" = abort ]; then
+			echo
+			echo 'Okay, aborting...'
 			exit 0
 		fi
-		printf \\n
+		echo
 	fi
 
 	# git add stuff
 	echo "Tracking files for commit ($rmode mode)"
 
-	if [ "$rmode" == "vogsphere" ]; then
+	if [ "$rmode" = vogsphere ]; then
 		totalFilesAdded=0
 		while read line
 		do
@@ -139,50 +142,53 @@ do
 	fi
 
 	if [ $totalFilesAdded -eq 0 ]; then
-		echo "No files were added!"
-		echo "You are either in the wrong folder, or there might be an issue with your repository"
+		echo 'No files were added!'
+		echo 'You are either in the wrong folder, or there might be an issue with your repository'
 		echo "By the way, your are here: $(pwd)"
-		echo "Aborting..."
+		echo 'Aborting...'
 		sleep 1
 		exit 1
 	fi
 
 	# git rm --cached stuff
-	echo "Untracking files for commit (if files were removed locally -- $rmode mode)"
+	echo "Untracking files for commit ($rmode mode)"
 
 	for f in `git ls-files`
 	do
-		if [ "`echo "$newFileList" | grep "$f"`" == "" ]; then
+		if [ -z "`echo "$newFileList" | grep "$f"`" ]; then
 			git rm --cached "$f" > /dev/null
 		fi
 	done
-	printf \\n
+	echo
 
 	# git status?
-	read -e -p "Do you want to see git status? (yes/anything) " qstatus
-	[ "$qstatus" == "yes" ] && git status
+	read -e -p 'Do you want to see git status? (yes/anything) ' qstatus
+	[ "$qstatus" = yes ] && git status
 
 	# git commit?
-	read -e -p "Do you want to commit those changes? (commit msg/manual/no): " commitmsg
-	if [ "$commitmsg" != "no" ]; then
-		if [ "$commitmsg" == "manual" ]; then gitcommitArg=""; else gitcommitArg="-m"; fi
-		git commit $gitcommitArg "$commitmsg"
-		printf \\n
+	read -e -p 'Do you want to commit those changes? (commit msg/edit/no): ' commitmsg
+	if [ "$commitmsg" != no ]; then
+		if [ "$commitmsg" = edit ]; then
+			git commit
+		else
+			git commit -m "$commitmsg"
+		fi
+		echo
 
 		# git push?
-		read -e -p "Do you want to push? (yes/anything) " qpush
-		if [ "$qpush" == "yes" ]; then
+		read -e -p 'Do you want to push? (yes/anything) ' qpush
+		if [ "$qpush" = yes ]; then
 			git push "$r"
-			printf \\n
-		elif [ "$qpush" == "next" ]; then
+			echo
+		elif [ "$qpush" = next ]; then
 			matene_msg
 		fi
-	elif [ "$commitmsg" != "next" ]; then
+	elif [ "$commitmsg" != next ]; then
 		matene_msg
 	fi
 
 done
 
 # End of script
-echo "Done!"
+echo 'Done!'
 exit 0

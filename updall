@@ -1,21 +1,25 @@
 #!/bin/bash
 
+crecdepth=0
 updall_dir()
 {
 	local should_disp=1
+	local did_pull=0
+
 	local disp_dir="$1"
-	[ $disp_dir = '.' ] && disp_dir="$PWD"
+	local recbrowse="$2"
+	local max_recdepth="$3"; [ ! -z "$max_recdepth" ] || max_recdepth=-1
+
+	[ "$disp_dir" != '.' ] || disp_dir=$(pwd)
 
 	# For Recursive
+	(( crecdepth++ ))
 	local dirs=()
 
-	for p in $1/*
+	for p in "$1"/*
 	do
-		[ -d "$p" -a ! -d "$p/.git" ] && dirs+=("$p")
-
-		if [ ! -d "$p/.git" ]; then
-			continue
-		fi
+		[ ! -d "$p" ] || dirs+=("$p")
+		[ -d "$p/.git" ] || continue
 
 		if [ $should_disp -eq 1 ]
 		then
@@ -25,22 +29,44 @@ updall_dir()
 
 		echo "Updating project: $p"
 		( eval "git -C '$p' pull" )
+		did_pull=1
 	done
 
 	# If recursive mode is not enabled, we stop there
-	[ "$2" != recursive ] && return 0
+	[ "$recbrowse" = recursive ] || return $did_pull
+	[ $crecdepth -ne $max_recdepth ] || return $did_pull
 
 	# Loop thru all folders we saw that aren't git repos
 	# Call ourselves one more time
+	local recdidp=$did_pull
 	for rec in "${dirs[@]}"
 	do
-		[ $should_disp -eq 0 ] && echo
-		updall_dir "$rec" $2
+		updall_dir "$rec" $recbrowse $max_recdepth
+		recdidp=$?
 	done
 
-	[ $should_disp -eq 0 ] && printf "\033[1;31m<= Close dir: $disp_dir\033[0;39m\n"
+	if [ $should_disp -eq 0 ]
+	then
+		printf "\033[1;31m<= Close dir: $disp_dir\033[0;39m\n"
+		[ $recdidp -eq 0 ] || echo
+	fi
+
+	return $did_pull
 }
 
-[ "$1" = '-r' ] && RECURSIVE=recursive
+if [ "$1" = '-r' ]
+then
+	RECURSIVE=recursive
+	shift
+fi
 
-updall_dir . $RECURSIVE
+if [ "$1" = '-d' ]
+then
+	RDEPTH="$2"
+	shift 2
+fi
+
+STARTDIR="$1"
+[ ! -z "$STARTDIR" ] || STARTDIR=.
+
+updall_dir "$STARTDIR" $RECURSIVE $RDEPTH

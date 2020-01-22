@@ -48,7 +48,7 @@ do
 	[ "$basef" != "$selfname" ] || continue
 	if [ ! -z "$CUSTOM_CMDS_IGNORE" ]
 	then
-		for ignore in "$CUSTOM_CMDS_IGNORE"
+		for ignore in $CUSTOM_CMDS_IGNORE
 		do
 			[ "$ignore" != "$namef" ] || continue 2
 		done

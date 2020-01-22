@@ -4,9 +4,12 @@
 export LANGUAGE=en_US.UTF-8
 export LC_TIME=C
 
-# ls colors
-export CLICOLOR=1
-export LSCOLORS=ExFxBxDxCxegedabagacad
+# ls colors (macOS Only)
+if [ "$(uname)" = Darwin ]
+then
+	export CLICOLOR=1
+	export LSCOLORS=ExFxBxDxCxegedabagacad
+fi
 
 # ls aliases
 alias ls='ls -GF'

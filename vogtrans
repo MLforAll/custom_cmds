@@ -24,10 +24,11 @@ rm -rf "$2/"*
 
 # Main
 echo "Copying main project"
-cp -a "$1"/* "$2"
+cp -a "$1"/* "$1/.gitignore" "$2"
 echo "Cleaning main project"
 rm -f "$2/README.md" "$2/todo"
 rm -rf "$2/misc"
+make fclean -C "$2" >/dev/null
 
 # libft
 if [ -h "$1/libft" ]; then

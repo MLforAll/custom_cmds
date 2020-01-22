@@ -9,10 +9,12 @@ if [ "$(uname)" = Darwin ]
 then
 	export CLICOLOR=1
 	export LSCOLORS=ExFxBxDxCxegedabagacad
+	alias ls='ls -GF'
+else
+	alias ls='ls -F --color=auto'
 fi
 
 # ls aliases
-alias ls='ls -GF'
 alias ll='ls -l'
 alias llh='ls -lh'
 alias lla='ls -la'

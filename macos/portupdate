@@ -1,7 +1,72 @@
 #!/bin/sh -e
 
-[ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
-[ ! -z "$(which port)" ] || { echo 'port command could not be found!' >&2; exit 1; }
+msg()
+{
+	if [ ! -t 1 ] || ! echo "$TERM" | grep xterm >/dev/null 2>&1
+	then
+		shift
+		echo "$@"
+		return
+	fi
 
-sudo port selfupdate &&
-sudo port upgrade outdated
+	local clr='0;39'
+	case "$1" in
+		i )
+			clr='1;39'
+			;;
+		e )
+			clr='1;31'
+			;;
+		w )
+			clr='1;33'
+			;;
+		g|o )
+			clr='1;32'
+			;;
+	esac
+
+	msg=''
+	while shift && [ ! -z "$1" ]
+	do
+		if [ -z "$msg" ]; then
+			msg="$1"
+		else
+			msg+=" $1"
+		fi
+	done
+	printf "\033[${clr}m%s\033[0;39m\n" "$msg"
+}
+
+[ $(uname) = Darwin ] || { msg e 'Not running macOS/OS X' >&2; exit 1; }
+[ ! -z "$(which port)" ] || { msg e 'port command could not be found!' >&2; exit 1; }
+
+if [ $(id -u) -ne 0 ]
+then
+	msg i "$ sudo '$0'"
+	exec sudo "$0"
+fi
+
+firstnl=0
+[ -z "$SUDO_UID" ] || firstnl=1
+
+portcmd()
+{
+	if [ $firstnl -eq 1 ]; then
+		echo
+	else
+		firstnl=1
+	fi
+
+	msg i "=> port $@"
+	port $@
+	exval=$?
+	if [ $exval -ne 0 ]
+	then
+		msg e "=> port $@ FAILED!"
+		exit $exval
+	fi
+	msg g "=> port $@ OK!"
+}
+
+portcmd selfupdate
+portcmd upgrade outdated

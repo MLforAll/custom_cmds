@@ -1,5 +1,21 @@
 #!/bin/sh
 
+# echoval function to print and eval a shell cmd
+echoval()
+{
+	local cmd="$1"
+	local msg="=> $cmd"
+
+	if [ -t 1 ] && echo "$TERM" | grep xterm >/dev/null 2>&1
+	then
+		printf '\033[1;39m%s\033[0;39m\n' "$msg"
+	else
+		echo "$msg"
+	fi
+
+	eval "$cmd"
+}
+
 # Run on macOS check
 [ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
 
@@ -14,11 +30,8 @@ fi
 # Create MP
 if [ -d /Volumes/ESP ]
 then
-	read -p "There is already a 'ESP' folder! Now what? (rm/use/open) " ans
-	if [ "$ans" = rm ]
-	then
-		sudo rm -R /Volumes/ESP
-	fi
+	read -p 'There is already a "ESP" folder! Now what? (rm/use/open) ' ans
+	[ "$ans" != rm ] || sudo rm -rf /Volumes/ESP
 else
 	sudo mkdir /Volumes/ESP
 fi
@@ -26,9 +39,30 @@ fi
 # Mount
 if [ "$ans" != open ]
 then
-	devNode="/dev/disk0s1"
-	[ -z "$1" ] || devNode="$1"
-	sudo mount_msdos "$devNode" /Volumes/ESP
+	partOfWhole=$(diskutil info / | sed -n 's/^ *Part of Whole\: *//p')
+	physicalStore=$(diskutil list "$partOfWhole" | sed -n 's/^.*Physical Store \([a-z0-9]*\).*$/\1/gp')
+
+	if [ -z "$1" ]
+	then
+		devNode='/dev/disk0s1'
+		if [ ! -z "$partOfWhole" -a -z "$physicalStore" ]
+		then
+			devNode="/dev/${partOfWhole}s1"
+		elif [ ! -z "$partOfWhole" ]
+		then
+			physicalWhole=$(diskutil info "$physicalStore" | sed -n 's/^ *Part of Whole\: *//p')
+			[ -z "$physicalWhole" ] || devNode="/dev/${physicalWhole}s1"
+		fi
+	else
+		devNode="$1"
+	fi
+
+	if [ ! -b "$devNode" ]
+	then
+		echo "$devNode is not a valid blockdevice" >&2
+		exit 1
+	fi
+	echoval "sudo mount_msdos '$devNode' /Volumes/ESP"
 fi
 
 # Open 1/2
@@ -44,6 +78,6 @@ then
 	open /Volumes/ESP
 else
 	echo 'Contents of /Volumes/ESP:'
-	ls -lhG /Volumes/ESP
+	ls -lhFG /Volumes/ESP
 	exit 0
 fi

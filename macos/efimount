@@ -30,11 +30,18 @@ fi
 # Create MP
 if [ -d /Volumes/ESP ]
 then
-	read -p 'There is already a "ESP" folder! Now what? (rm/use/open) ' ans
-	[ "$ans" != rm ] || sudo rm -rf /Volumes/ESP
-else
-	sudo mkdir /Volumes/ESP
+	read -p 'There is already a "ESP" folder! Now what? (rm/use/open/umnt) ' ans
+	case "$ans" in
+		rm )
+			sudo rm -rf /Volumes/ESP
+			;;
+		umnt )
+			diskutil unmount /Volumes/ESP
+			exit
+			;;
+	esac
 fi
+[ -d /Volumes/ESP ] || sudo mkdir /Volumes/ESP
 
 # Mount
 if [ "$ans" != open ]

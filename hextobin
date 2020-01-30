@@ -2,5 +2,6 @@
 
 [ ! -z "$1" ] || { echo 'usage: hextobin 2A' >&2; exit 1; }
 
-n=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+n="$1"
+n=$(echo "${n#0x}" | tr '[:lower:]' '[:upper:]')
 echo "ibase=16; obase=2; $n" | bc

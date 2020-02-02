@@ -51,12 +51,6 @@ fi
 
 alias sudo='sudo -p "Type your $os_name admin password: "'
 
-if [ $os_ver -gt 14 -a "$volumename" = '/' ]
-then
-	sudo mount -uw /
-	echo '>> REMOUNT COMPLETE'
-fi
-
 if [ "$volumename" = '/' ]
 then
 	diskutil info -plist / > /tmp/rootVolInfos.plist
@@ -69,21 +63,31 @@ fi
 dest_osver=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" | cut -d. -f2)
 [ $dest_osver -gt 5 ] || errMsgExitCode1 'This script only works on Mac OS X Snow Leopard (10.6) or newer!' 1 "$1"
 
-sudo chmod -R 755 "/Volumes/$volumename/System/Library/Extensions" || exit 1
-echo '>> CHMOD COMPLETE'
+if [ $os_ver -lt 15 -o "$1" != '/' ]
+then
+	sudo chmod -R 755 "/Volumes/$volumename/System/Library/Extensions" || exit 1
+	echo '>> CHMOD /S/L/E COMPLETE'
 
-sudo chown -R root:wheel "/Volumes/$volumename/System/Library/Extensions"
-echo '>> CHOWN COMPLETE'
+	sudo chown -R root:wheel "/Volumes/$volumename/System/Library/Extensions"
+	echo '>> CHOWN /S/L/E COMPLETE'
 
-sudo touch "/Volumes/$volumename/System/Library/Extensions"
-echo '>> TOUCH COMPLETE'
+	sudo touch "/Volumes/$volumename/System/Library/Extensions"
+	echo '>> TOUCH /S/L/E COMPLETE'
+fi
 
+sudo touch "/Volumes/$volumename/Library/Extensions"
+echo '>> TOUCH /L/E COMPLETE'
 echo
-if [ ! -d "/Volumes/$volumename/System/Library/Caches" ] ; then sudo mkdir "/Volumes/$volumename/System/Library/Caches" ; fi
-if [ ! -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches" ]; then sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches" ; fi
-if [ ! -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup" ]; then sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup" ; fi
-if [ -f "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ]; then sudo rm "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ; fi
-if [ -f "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel" ]; then sudo rm "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel" ; fi
+
+[ -d "/Volumes/$volumename/System/Library/Caches" ] || sudo mkdir "/Volumes/$volumename/System/Library/Caches"
+[ -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches" ] || sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches"
+[ -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup" ] || sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup"
+[ ! -f "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ] || sudo rm -f "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+
+if [ $os_ver -lt 15 -a -f "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel" ]; then
+	sudo rm -f "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel"
+fi
+
 sudo kextcache -f -update-volume "/Volumes/$volumename"
 echo
 echo '>> KEXTCACHE COMPLETE'
@@ -93,6 +97,5 @@ if [ -z "$1" ]
 then
 	echo 'Done !'
 	echo
-
 	sleep 2
 fi

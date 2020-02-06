@@ -1,0 +1,9 @@
+#!/bin/sh
+
+[ -e "$1" -a ! -z "$2" ] || { echo 'usage: rename source newname'; exit 1; }
+
+src="$1"
+nn="$2"
+
+dir=$(dirname "$src")
+mv "$src" "$dir/$nn"

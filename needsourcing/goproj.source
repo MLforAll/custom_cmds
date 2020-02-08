@@ -9,7 +9,7 @@ PROJPATHSYSADMIN="$HOME/Documents/Projects/SysAdmin"
 PROJPATHALL="$HOME/Documents/Projects"
 
 # Settings
-GOPROJDFLPATH=macOS
+[ ! -z "$GOPROJDFLPATH" ] || GOPROJDFLPATH=macOS
 
 goproj()
 {

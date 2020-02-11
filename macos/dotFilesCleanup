@@ -1,7 +1,8 @@
 #!/bin/sh
 
-echo "Cleaning from $(pwd)"
+[ ! -d "$1" ] || cd "$1"
 
+echo "Cleaning from $(pwd)"
 find . \( -name .DS_Store -o -name '._*' \) -delete -print
 
 echo Done

@@ -16,6 +16,12 @@ echoval()
 	eval "$cmd"
 }
 
+cleanAndUnmount()
+{
+	dotFilesCleanup "$1"
+	diskutil unmount "$1" || diskutil unmount force "$1"
+}
+
 # Run on macOS check
 [ $(uname) = Darwin ] || { echo 'Not running macOS/OS X' >&2; exit 1; }
 
@@ -23,7 +29,7 @@ echoval()
 if [ "$1" = 'umnt' -o "$1" = '-u' ]
 then
 	[ -d /Volumes/ESP ] || { echo '/Volumes/ESP does not exist!' >&2; exit 1; }
-	echoval 'diskutil unmount /Volumes/ESP'
+	echoval 'cleanAndUnmount /Volumes/ESP'
 	exit
 fi
 
@@ -44,7 +50,7 @@ then
 			sudo rm -rf /Volumes/ESP
 			;;
 		umnt )
-			diskutil unmount /Volumes/ESP
+			cleanAndUnmount /Volumes/ESP
 			exit
 			;;
 	esac

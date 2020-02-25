@@ -9,17 +9,55 @@ PROJPATHSYSADMIN="$HOME/Documents/Projects/SysAdmin"
 PROJPATHALL="$HOME/Documents/Projects"
 
 # Settings
-[ ! -z "$GOPROJDFLPATH" ] || GOPROJDFLPATH=macOS
+# --------
+#
+# - Set GOPROJDFLPATH in your .bashrc or .bash_profile
+#   to set the default path. In the absence of this variable
+#   and argument to goproj when invoked, value 'macOS' will be used
+#
+# - Set GOPROJALIASES in your .bashrc or .bash_profile
+#   to set an alias (like ft for 42, etc...)
+#
+GOPROJALIASES=('ft=42')
 
 goproj()
 {
-	local dir="$1"; [ ! -z "$dir" ] || dir="$GOPROJDFLPATH"
-	local evn=PROJPATH$(echo "$dir" | tr '[:lower:]' '[:upper:]')
-	local evval=$(eval "echo \"\$$evn\"")
+	local dir="$1"
+	if [ -z "$dir" ]
+	then
+		dir="$GOPROJDFLPATH"
+		[ ! -z "$dir" ] || dir=macOS
+	fi
 
-	[ ! -z "$evval" ] || {
-		echo "$evn variable not defined or empty" >&2
-		return 1
-	}
+
+	local i
+	for i in 0 1
+	do
+		if [ $i -gt 0 -a ! -z "$GOPROJALIASES" ]
+		then
+			local a
+			for a in "${GOPROJALIASES[@]}"
+			do
+				local achk=$(echo "$a" | sed 's/^\(.*\)=.*$/\1/')
+				local aval=$(echo "$a" | sed 's/^.*=\(.*\)$/\1/')
+				if [ "$dir" = "$achk" ]
+				then
+					dir="$aval"
+					break ;
+				fi
+			done; unset a achk aval
+		fi
+
+		local evn=PROJPATH$(echo "$dir" | tr '[:lower:]' '[:upper:]')
+		local evval=$(eval "echo \"\$$evn\"")
+
+		[ -z "$evval" ] || break
+		if [ $i -gt 0 ]
+		then
+			echo "$evn variable not defined or empty" >&2
+			return 1
+		fi
+	done; unset i
+
 	cd "$evval"
 }

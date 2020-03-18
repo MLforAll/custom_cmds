@@ -1,0 +1,21 @@
+#!/bin/sh
+
+[ -z "$1" ] || cd "$1"
+
+nprojs=$(ls -1d *.xcodeproj 2>/dev/null | wc -l | tr -d ' ')
+
+case $nprojs in
+	0 )
+		echo 'No Xcode Project Found' >&2
+		exit 1
+		;;
+	1 )
+		break
+		;;
+	* )
+		echo "More than 1 ($nprojs) Xcode Project Found" >&2
+		exit 1
+		;;
+esac
+
+open *.xcodeproj

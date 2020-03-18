@@ -2,19 +2,21 @@
 
 if ! echo "$SHELL" | grep bash >/dev/null 2>&1
 then
-	echo 'Not running bash'
+	echo 'Not running bash' >&2
 	return 1
 fi
 
 if [ -z "$BASH_SOURCE" -o "$BASH_SOURCE" = "$0" ]
 then
-	echo 'Not sourcing'
-	echo 'Exiting...'
+	{
+		echo 'Not sourcing'
+		echo 'Exiting...'
+	} >&2
 	exit 1
 fi
 
 # Backups
-OLDPATH="$PATH"
+#OLDPATH="$PATH"
 
 # Variables
 selfname=$(basename "$BASH_SOURCE")

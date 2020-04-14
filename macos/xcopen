@@ -5,7 +5,14 @@ then
 	cd "$1" || exit
 fi
 
+nworks=$(ls -1d *.xcworkspace 2>/dev/null | wc -l | tr -d ' ')
 nprojs=$(ls -1d *.xcodeproj 2>/dev/null | wc -l | tr -d ' ')
+
+if [ $nworks -eq 1 ]
+then
+	open *.xcworkspace
+	exit
+fi
 
 case $nprojs in
 	0 )

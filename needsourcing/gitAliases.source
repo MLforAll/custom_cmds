@@ -15,3 +15,6 @@ gurl()
 		git remote get-url "$1"
 	)
 }
+
+alias grst='git reset'
+alias grsth='grst --hard'

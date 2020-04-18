@@ -1,20 +1,28 @@
 #!/bin/sh
 
-if [ ! -f "$1" ] && [ ! -d "$1" ]; then
+if [ ! -f "$1" -a ! -d "$1" ]; then
 	echo "$(basename "$0"): Error no. 2: No such file or directory!"
 	exit 1
 fi
 
-sublimePath="$HOME/Applications/Sublime Text.app"
-if [ ! -d "$sublimePath" ]; then
-	sublimePath='/Applications/Sublime Text.app'
+sublimePaths=(
+	'/Applications/Sublime Text.app'
+	'/Applications/Sublime Text 2.app'
+	"$HOME/Applications/Sublime Text.app"
+	"$HOME/Applications/Sublime Text 2.app"
+)
+for p in "${sublimePaths[@]}"
+do
+	if [ -d "$p" ]
+	then
+		sublimePath="$p"
+		break
+	fi
+done
+if [ -z "$sublimePath" ]
+then
+	echo "$(basename "$0"): Couldn't find a valid sublime path"
+	exit 1
 fi
 
-num=$#
-cmd="open -a '$sublimePath'"
-for (( i=0; i<$num; i++ ))
-do
-	cmd+=" \"$1\""
-	shift
-done
-eval "$cmd"
+open -a "$sublimePath" "$@"

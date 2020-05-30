@@ -6,13 +6,14 @@ alias gca='git commit --amend'
 gurl()
 {
 	(
-		if [ ! -z "$1" ]
+		if [ -d "$1" ]
 		then
-			cd "$1" >/dev/null || return
+			cd "$1" >/dev/null || exit $?
 			shift
 		fi
 
-		git remote get-url "$1"
+		r="$1"; [ ! -z "$r" ] || r=origin
+		git remote get-url "$r"
 	)
 }
 

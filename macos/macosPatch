@@ -1,0 +1,77 @@
+#!/bin/bash
+
+BASENAME=$(basename "$0")
+OS_VERSION=$(sw_vers -productVersion | cut -d. -f2)
+
+fatal()
+{
+	echo "$BASENAME: $1" >&2
+	exit 1
+}
+
+[ $(id -u) -eq 0 ] || fatal 'This tool must be run as root'
+
+sudoPatch()
+{
+	local sudoPath=/etc/pam.d/sudo
+	local sudocPath=/etc/pam.d/sudo_custom
+	[ -f "$sudocPath" ] || return 0
+
+	echo '==> Replacing sudo pam service'
+	rm -f "$sudoPath"
+	ln -s "$sudocPath" "$sudoPath"
+}
+
+bashPatch()
+{
+	local bakbashPath=/usr/local/bin/bash
+	local bashPath=/bin/bash
+	[ -f "$bakbashPath" ] || return 0
+
+	echo '==> Replacing bash'
+	if diff "$bashPath" "$bakbashPath" >/dev/null 2>&1
+	then
+		echo "$bakbashPath and $bashPath are identical..."
+		return 0
+	fi
+
+	rm -f "$bashPath"
+	cp "$bakbashPath" "$bashPath"
+	chown root:wheel "$bashPath"
+	chmod 0555 "$bashPath"
+}
+
+lockscreenPatch()
+{
+	local lockscreenPicturePath=/Library/DefaultLockscreen.jpg
+	local loginuikit=/System/Library/PrivateFrameworks/LoginUIKit.framework/Versions/A/LoginUIKit
+	[ -f "$lockscreenPicturePath" ] || return 0
+
+	echo '==> Replacing Lockscreen Picture'
+	cp -a "$loginuikit" "${loginuikit}_"
+	binstrpatch "$loginuikit" /System/Library/CoreServices/DefaultDesktop.heic "$lockscreenPicturePath"
+	codesign -f -s - "$loginuikit"
+	read -p 'Go to lockscreen to test (requires fus utility) (y/n) ' testfus
+	if [ "$testfus" = y -o "$testfus" = Y ]
+	then
+		fus && sleep 5
+		read -p 'Remove backup? (y/n) ' rmbackup
+		if [ "$rmbackup" = y -o "$rmbackup" = Y ]
+		then
+			rm -f "${loginuikit}_"
+		fi
+	fi
+}
+
+if [ $OS_VERSION -ge 15 ]
+then
+	echo '==> Remounting rootfs'
+	mount -uw / || fatal 'Could not remount rootfs'
+fi
+
+sudoPatch
+bashPatch
+
+if [ $OS_VERSION -ge 15 ]; then
+	lockscreenPatch
+fi

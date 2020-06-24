@@ -35,6 +35,12 @@ bashPatch()
 		return 0
 	fi
 
+	if [ $OS_VERSION -gt 15 ]
+	then
+		echo 'This patch requires version 10.15 or lower' >&2
+		return 1
+	fi
+
 	rm -f "$bashPath"
 	cp "$bakbashPath" "$bashPath"
 	chown root:wheel "$bashPath"
@@ -63,15 +69,15 @@ lockscreenPatch()
 	fi
 }
 
-if [ $OS_VERSION -ge 15 ]
+if [ $OS_VERSION -eq 15 -a "$1" != '-noremount' ]
 then
-	echo '==> Remounting rootfs'
+	echo '==> macOS Catalina: Remounting rootfs'
 	mount -uw / || fatal 'Could not remount rootfs'
 fi
 
 sudoPatch
 bashPatch
 
-if [ $OS_VERSION -ge 15 ]; then
+if [ $OS_VERSION -eq 15 -o $OS_VERSION -eq 14 ]; then
 	lockscreenPatch
 fi

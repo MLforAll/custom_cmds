@@ -1,7 +1,9 @@
 #!/bin/bash
 
 BASENAME=$(basename "$0")
+
 OS_VERSION=$(sw_vers -productVersion | cut -d. -f2)
+ROOTFS_RW=1
 
 fatal()
 {
@@ -17,7 +19,8 @@ sudoPatch()
 	local sudocPath=/etc/pam.d/sudo_custom
 	[ -f "$sudocPath" ] || return 0
 
-	echo '==> Replacing sudo pam service'
+	echo '==> sudo pam service Patch'
+
 	rm -f "$sudoPath"
 	ln -s "$sudocPath" "$sudoPath"
 }
@@ -28,17 +31,30 @@ bashPatch()
 	local bashPath=/bin/bash
 	[ -f "$bakbashPath" ] || return 0
 
-	echo '==> Replacing bash'
-	if diff "$bashPath" "$bakbashPath" >/dev/null 2>&1
-	then
-		echo "$bakbashPath and $bashPath are identical..."
-		return 0
-	fi
+	echo '==> /bin/bash Patch'
 
 	if [ $OS_VERSION -gt 15 ]
 	then
 		echo 'This patch requires version 10.15 or lower' >&2
 		return 1
+	fi
+
+	if [ $ROOTFS_RW -eq 0 ]
+	then
+		echo 'This patch requires rootfs to be writable' >&2
+		return 1
+	fi
+
+	if [ "$SHELL" != '/bin/bash' ]
+	then
+		echo "\$SHELL indicates a custom shell. Not applying bashPatch..."
+		return 0
+	fi
+
+	if diff "$bashPath" "$bakbashPath" >/dev/null 2>&1
+	then
+		echo "$bakbashPath and $bashPath are identical..."
+		return 0
 	fi
 
 	rm -f "$bashPath"
@@ -51,9 +67,27 @@ lockscreenPatch()
 {
 	local lockscreenPicturePath=/Library/DefaultLockscreen.jpg
 	local loginuikit=/System/Library/PrivateFrameworks/LoginUIKit.framework/Versions/A/LoginUIKit
-	[ -f "$lockscreenPicturePath" ] || return 0
 
-	echo '==> Replacing Lockscreen Picture'
+	echo '==> Lockscreen Picture Patch'
+
+	if [ $OS_VERSION -ne 14 -a $OS_VERSION -ne 15 ]
+	then
+		echo 'This patch requires version 10.14 or 10.15' >&2
+		return 1
+	fi
+
+	if [ $ROOTFS_RW -eq 0 ]
+	then
+		echo 'This patch requires rootfs to be writable' >&2
+		return 1
+	fi
+
+	if [ ! -f "$lockscreenPicturePath" ]
+	then
+		echo "$lockscreenPicturePath not found" >&2
+		return 0
+	fi
+
 	cp -a "$loginuikit" "${loginuikit}_"
 	binstrpatch "$loginuikit" /System/Library/CoreServices/DefaultDesktop.heic "$lockscreenPicturePath"
 	codesign -f -s - "$loginuikit"
@@ -72,12 +106,22 @@ lockscreenPatch()
 if [ $OS_VERSION -eq 15 -a "$1" != '-noremount' ]
 then
 	echo '==> macOS Catalina: Remounting rootfs'
-	mount -uw / || fatal 'Could not remount rootfs'
+	mount -uw / || {
+		echo 'WARN: Could not remount rootfs' >&2
+		ROOTFS_RW=0
+	}
+	echo
 fi
 
-sudoPatch
-bashPatch
-
-if [ $OS_VERSION -eq 15 -o $OS_VERSION -eq 14 ]; then
-	lockscreenPatch
-fi
+patches=(sudoPatch bashPatch lockscreenPatch)
+firstPatch=0
+for p in "${patches[@]}"
+do
+	if [ $firstPatch -eq 0 ]
+	then
+		firstPatch=1
+	else
+		echo
+	fi
+	"$p"
+done

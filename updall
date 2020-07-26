@@ -27,8 +27,13 @@ updall_dir()
 			should_disp=0
 		fi
 
-		echo "Updating project: $p"
+		echo "=> Updating project: $p"
 		( eval "git -C '$p' pull" )
+		git -C "$p" submodule | cut -d' ' -f3 | while read s
+		do
+			echo "   => Submodule $p"
+			( eval "git -C '$p/$s' pull" )
+		done
 		did_pull=1
 	done
 

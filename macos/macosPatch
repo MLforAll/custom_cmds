@@ -1,9 +1,10 @@
 #!/bin/bash
 
 BASENAME=$(basename "$0")
-
-OS_VERSION=$(sw_vers -productVersion | cut -d. -f2)
 ROOTFS_RW=1
+
+OS_MAJOR=$(sw_vers -productVersion | cut -d. -f1)
+OS_VERSION=$(sw_vers -productVersion | cut -d. -f2)
 
 fatal()
 {
@@ -33,7 +34,7 @@ bashPatch()
 
 	echo '==> /bin/bash Patch'
 
-	if [ $OS_VERSION -gt 15 ]
+	if [ $OS_MAJOR -gt 10 -o $OS_VERSION -gt 15 ]
 	then
 		echo 'This patch requires version 10.15 or lower' >&2
 		return 1
@@ -70,7 +71,7 @@ lockscreenPatch()
 
 	echo '==> Lockscreen Picture Patch'
 
-	if [ $OS_VERSION -ne 14 -a $OS_VERSION -ne 15 ]
+	if [ $OS_MAJOR -gt 10 -o \( $OS_VERSION -ne 14 -a $OS_VERSION -ne 15 \) ]
 	then
 		echo 'This patch requires version 10.14 or 10.15' >&2
 		return 1
@@ -103,7 +104,7 @@ lockscreenPatch()
 	fi
 }
 
-if [ $OS_VERSION -eq 15 -a "$1" != '-noremount' ]
+if [ $OS_MAJOR -eq 10 -a $OS_VERSION -eq 15 -a "$1" != '-noremount' ]
 then
 	echo '==> macOS Catalina: Remounting rootfs'
 	mount -uw / || {

@@ -31,7 +31,7 @@ updall_dir()
 		( eval "git -C '$p' pull" )
 		git -C "$p" submodule | sed 's/^ *//' | cut -d' ' -f2 | while read s
 		do
-			echo "   => Submodule $p"
+			echo "   => Submodule $s"
 			( eval "git -C '$p/$s' pull" )
 		done
 		did_pull=1

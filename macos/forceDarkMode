@@ -4,11 +4,17 @@
 bid=$(appid "$1")
 [ $? -eq 0 -a ! -z "$bid" ] || { echo 'appid failed!' >&2; exit 2; }
 
-if [ "$2" = revert ]
-then
-	echo "$bid: revert"
-	defaults delete "$bid" NSRequiresAquaSystemAppearance
-else
-	echo "$bid: force Dark Mode"
-	defaults write "$bid" NSRequiresAquaSystemAppearance -bool NO
-fi
+case "$2" in
+	revert )
+		echo "$bid: revert"
+		defaults delete "$bid" NSRequiresAquaSystemAppearance
+		;;
+	light )
+		echo "$bid: force Light Mode (for badly written apps)"
+		defaults write "$bid" NSRequiresAquaSystemAppearance -bool YES
+		;;
+	* )
+		echo "$bid: force Dark Mode"
+		defaults write "$bid" NSRequiresAquaSystemAppearance -bool NO
+		;;
+esac

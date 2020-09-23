@@ -13,8 +13,12 @@ case "$2" in
 		echo "$bid: force Light Mode (for badly written apps)"
 		defaults write "$bid" NSRequiresAquaSystemAppearance -bool YES
 		;;
-	* )
+	'' )
 		echo "$bid: force Dark Mode"
 		defaults write "$bid" NSRequiresAquaSystemAppearance -bool NO
+		;;
+	* )
+		echo "usage: $(basename "$0") [revert|light]"
+		exit 1
 		;;
 esac

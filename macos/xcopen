@@ -14,6 +14,12 @@ then
 	exit
 fi
 
+if [ -f Package.swift ]
+then
+	open Package.swift
+	exit
+fi
+
 case $nprojs in
 	0 )
 		echo 'No Xcode Project Found' >&2

@@ -15,9 +15,6 @@ then
 	exit 1
 fi
 
-# Backups
-#OLDPATH="$PATH"
-
 # Variables
 selfname=$(basename "$BASH_SOURCE")
 sourcingCmdsPath=$(dirname "$BASH_SOURCE")

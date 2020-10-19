@@ -19,3 +19,15 @@ gurl()
 
 alias grst='git reset'
 alias grsth='grst --hard'
+
+gbupd()
+{
+	local remote=origin
+	if [ ! -z "$1" ]
+	then
+		remote="$1"
+		shift
+	fi
+
+	git remote update "$remote" --prune "$@"
+}

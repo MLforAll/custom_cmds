@@ -1,0 +1,17 @@
+#!/bin/bash
+
+custom_open()
+{
+	local appName="$1"
+	shift
+
+	if test -z "$1"
+	then
+		open -a "$appName" .
+	else
+		open -a "$appName" "$@"
+	fi
+}
+
+alias vsopen='custom_open Visual\ Studio\ Code'
+alias asopen='custom_open Android\ Studio'

@@ -6,13 +6,13 @@ then
 	exit 1
 fi
 
-version="$(sw_vers -productVersion | cut -d. -f2)"
+version="$(sw_vers -productVersion | cut -d. -f-2)"
 if [ -z "$version" ]
 then
 	echo 'Error getting macOS version' >&2
 	exit 1
 fi
-if [ $version -lt 6 ]
+if [ "$version" '<' '10.6' ]
 then
 	echo 'You are not running Mac OS X 10.6 Snow Leopard or later!' >&2
 	exit 1
@@ -54,8 +54,8 @@ my_question()
 # AppleFontSmoothing
 my_question AppleFontSmoothing 0/1/2/3 1 -int -currentHost
 
-# Quit if not on Mojave+
-[ $version -gt 13 ] || exit
+# Quit if not on Mojave or Catalina
+[ "$version" '>' '10.13' -a "$version" '<' '10.16' ] || exit
 
 # Separator
 echo

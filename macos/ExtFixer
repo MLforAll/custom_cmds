@@ -2,17 +2,13 @@
 
 # FUNC(S)
 
-# Takes 3 args : $1 = msg | $2 = sleepTime | $3 = global $1
+# Takes 3 args : $1 = msg
 errMsgExitCode1 ()
 {
 	echo "$1"
 	echo 'Aborting...'
 
-	local sleepTime
-	if [ -z "$2" ]; then sleepTime="1"; else sleepTime="$2"; fi
-	sleep $sleepTime
-
-	[ ! -z "$3" ] || echo
+	echo
 
 	exit 1
 }
@@ -52,42 +48,38 @@ fi
 
 alias sudo='sudo -p "Type your $os_name admin password: "'
 
-if [ "$volumename" = '/' ]
-then
-	diskutil info -plist / > /tmp/rootVolInfos.plist
-	volumename=$(/usr/libexec/PlistBuddy -c 'Print :VolumeName' /tmp/rootVolInfos.plist)
-	rm /tmp/rootVolInfos.plist
-fi
+volumepath="/Volumes/$volumename"
+[ "$volumename" != '/' ] || volumepath='/'
 
-[ -f "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" ] || errMsgExitCode1 "Invalid input!" 1 "$1"
+[ -f "$volumepath/System/Library/CoreServices/SystemVersion.plist" ] || errMsgExitCode1 'Invalid input!'
 
-dest_osmajor=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" | cut -d. -f1)
-dest_osver=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "/Volumes/$volumename/System/Library/CoreServices/SystemVersion.plist" | cut -d. -f2)
-[ $dest_osver -gt 5 -o $dest_osmajor -gt 10 ] || errMsgExitCode1 'This script only works on Mac OS X Snow Leopard (10.6) or newer!' 1 "$1"
+dest_osmajor=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "$volumepath/System/Library/CoreServices/SystemVersion.plist" | cut -d. -f1)
+dest_osver=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "$volumepath/System/Library/CoreServices/SystemVersion.plist" | cut -d. -f2)
+[ $dest_osver -gt 5 -o $dest_osmajor -gt 10 ] || errMsgExitCode1 'This script only works on Mac OS X Snow Leopard (10.6) or newer!'
 
 if [ \( $os_major -eq 10 -a $os_ver -lt 15 \) -o "$1" != '/' ]
 then
-	sudo chown -R root:wheel "/Volumes/$volumename/System/Library/Extensions"
+	sudo chown -R root:wheel "$volumepath/System/Library/Extensions"
 	echo '>> CHOWN /S/L/E COMPLETE'
 
-	sudo touch "/Volumes/$volumename/System/Library/Extensions"
+	sudo touch "$volumepath/System/Library/Extensions"
 	echo '>> TOUCH /S/L/E COMPLETE'
 fi
 
-sudo touch "/Volumes/$volumename/Library/Extensions"
+sudo touch "$volumepath/Library/Extensions"
 echo '>> TOUCH /L/E COMPLETE'
 echo
 
-[ -d "/Volumes/$volumename/System/Library/Caches" ] || sudo mkdir "/Volumes/$volumename/System/Library/Caches"
-[ -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches" ] || sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches"
-[ -d "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup" ] || sudo mkdir "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup"
-[ ! -f "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ] || sudo rm -f "/Volumes/$volumename/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+[ -d "$volumepath/System/Library/Caches" ] || sudo mkdir "$volumepath/System/Library/Caches"
+[ -d "$volumepath/System/Library/Caches/com.apple.kext.caches" ] || sudo mkdir "$volumepath/System/Library/Caches/com.apple.kext.caches"
+[ -d "$volumepath/System/Library/Caches/com.apple.kext.caches/Startup" ] || sudo mkdir "$volumepath/System/Library/Caches/com.apple.kext.caches/Startup"
+[ ! -f "$volumepath/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache" ] || sudo rm -f "$volumepath/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
 
-if [ $dest_osmajor -eq 10 -a $dest_osver -lt 15 -a -f "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel" ]; then
-	sudo rm -f "/Volumes/$volumename/System/Library/PrelinkedKernels/prelinkedkernel"
+if [ $dest_osmajor -eq 10 -a $dest_osver -lt 15 -a -f "$volumepath/System/Library/PrelinkedKernels/prelinkedkernel" ]; then
+	sudo rm -f "$volumepath/System/Library/PrelinkedKernels/prelinkedkernel"
 fi
 
-sudo kextcache -f -update-volume "/Volumes/$volumename"
+sudo kextcache -f -update-volume "$volumepath"
 echo
 echo '>> KEXTCACHE COMPLETE'
 echo
@@ -96,5 +88,4 @@ if [ -z "$1" ]
 then
 	echo 'Done !'
 	echo
-	sleep 2
 fi

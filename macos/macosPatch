@@ -1,10 +1,10 @@
 #!/bin/bash
 
 BASENAME=$(basename "$0")
-ROOTFS_RW=1
 
-OS_MAJOR=$(sw_vers -productVersion | cut -d. -f1)
-OS_VERSION=$(sw_vers -productVersion | cut -d. -f2)
+OS_VERSION=$(sw_vers -productVersion)
+OS_MAJOR=$(echo "$OS_VERSION" | cut -d. -f1)
+OS_MINOR=$(echo "$OS_VERSION" | cut -d. -f2)
 
 fatal()
 {
@@ -13,6 +13,22 @@ fatal()
 }
 
 [ $(id -u) -eq 0 ] || fatal 'This tool must be run as root'
+
+ensureWritableRootFS()
+{
+	[ -z "$DID_REMOUNT_ROOTFS" ] || return 0
+
+	if [ $OS_MAJOR -eq 10 -a $OS_MINOR -eq 15 ]
+	then
+		echo 'macOS Catalina: Remounting rootfs'
+		mount -uw / || {
+			echo 'WARN: Could not remount rootfs' >&2
+			exit 1
+		}
+	fi
+
+	DID_REMOUNT_ROOTFS=1
+}
 
 sudoPatch()
 {
@@ -34,17 +50,13 @@ bashPatch()
 
 	echo '==> /bin/bash Patch'
 
-	if [ $OS_MAJOR -gt 10 -o $OS_VERSION -gt 15 ]
+	if [ $OS_MAJOR -gt 10 -o $OS_MINOR -gt 15 ]
 	then
 		echo 'This patch requires version 10.15 or lower' >&2
 		return 1
 	fi
 
-	if [ $ROOTFS_RW -eq 0 ]
-	then
-		echo 'This patch requires rootfs to be writable' >&2
-		return 1
-	fi
+	ensureWritableRootFS
 
 	if [ "$SHELL" != '/bin/bash' ]
 	then
@@ -71,17 +83,13 @@ lockscreenPatch()
 
 	echo '==> Lockscreen Picture Patch'
 
-	if [ $OS_MAJOR -gt 10 -o \( $OS_VERSION -ne 14 -a $OS_VERSION -ne 15 \) ]
+	if [ $OS_MAJOR -gt 10 -o \( $OS_MINOR -ne 14 -a $OS_MINOR -ne 15 \) ]
 	then
 		echo 'This patch requires version 10.14 or 10.15' >&2
 		return 1
 	fi
 
-	if [ $ROOTFS_RW -eq 0 ]
-	then
-		echo 'This patch requires rootfs to be writable' >&2
-		return 1
-	fi
+	ensureWritableRootFS
 
 	if [ ! -f "$lockscreenPicturePath" ]
 	then
@@ -103,16 +111,6 @@ lockscreenPatch()
 		fi
 	fi
 }
-
-if [ $OS_MAJOR -eq 10 -a $OS_VERSION -eq 15 -a "$1" != '-noremount' ]
-then
-	echo '==> macOS Catalina: Remounting rootfs'
-	mount -uw / || {
-		echo 'WARN: Could not remount rootfs' >&2
-		ROOTFS_RW=0
-	}
-	echo
-fi
 
 patches=(sudoPatch bashPatch lockscreenPatch)
 firstPatch=0

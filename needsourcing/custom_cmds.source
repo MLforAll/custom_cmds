@@ -21,7 +21,7 @@ sourcingCmdsPath=$(dirname "$BASH_SOURCE")
 cmdsPath=$(dirname "$sourcingCmdsPath")
 
 # Export cmds to PATH
-export PATH="$cmdsPath:$PATH"
+export PATH="$cmdsPath:$cmdsPath/deprecated:$PATH"
 
 # Exports platform specific cmds to PATH
 speCmdsPath=

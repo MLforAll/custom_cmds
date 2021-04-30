@@ -1,4 +1,10 @@
 #!/bin/sh
 
+if [ ! -f "$1" ]
+then
+	echo "usage: $(basename "$0") /path/to/file.dos"
+	exit 1
+fi
+
 CR=$(printf '\r')
 sed -i '' "s/$CR\$//" "$1"

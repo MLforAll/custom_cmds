@@ -3,6 +3,10 @@
 alias gcl='git clone'
 alias gca='git commit --amend'
 
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gbdd='git branch -D'
+
 gurl()
 {
 	(

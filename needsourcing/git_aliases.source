@@ -7,6 +7,9 @@ alias gba='git branch -a'
 alias gbd='git branch -d'
 alias gbdd='git branch -D'
 
+alias glog='git log'
+alias gst='git status'
+
 gurl()
 {
 	(

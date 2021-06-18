@@ -2,7 +2,7 @@
 
 user_login_shell()
 {
-	local loginShell=/bin/bash
+	local loginShell="$SHELL"
 
 	if which php >/dev/null 2>&1
 	then

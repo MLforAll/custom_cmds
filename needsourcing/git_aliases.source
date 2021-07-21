@@ -10,6 +10,9 @@ alias gbdd='git branch -D'
 alias glog='git log'
 alias gst='git status'
 
+alias gp='git push'
+alias gl='git pull'
+
 gurl()
 {
 	(
@@ -37,4 +40,24 @@ gbupd()
 	fi
 
 	git remote update "$remote" --prune "$@"
+}
+
+git-current-branch() {
+
+	local ref=$(git symbolic-ref --quiet HEAD 2> /dev/null) 
+	local ret=$?
+
+	if [ $ret -ne 0 ]
+	then
+		[ $ret -ne 128 ] || return 0
+		ref=$(git rev-parse --short HEAD 2> /dev/null)  || return
+	fi
+
+	echo ${ref#refs/heads/}
+}
+
+alias gpsup='git push --set-upstream origin $(git-current-branch)'
+
+git-creation-date() {
+	git log --follow --format=%aD "$1" | tail -1
 }

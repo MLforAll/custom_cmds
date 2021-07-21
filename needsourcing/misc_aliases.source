@@ -1,0 +1,4 @@
+#!/bin/bash
+
+alias tolower="tr '[:upper:]' '[:lower:]'"
+alias toupper="tr '[:lower:]' '[:upper:]'"

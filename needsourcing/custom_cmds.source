@@ -43,7 +43,7 @@ unset speCmdsPath
 for f in "$sourcingCmdsPath"/*.source
 do
 	basef=$(basename "$f")
-	namef=$(basename -s .source "$f")
+	namef=$(basename "$f" | sed 's/\.source$//')
 	[ "$basef" != "$selfname" ] || continue
 	if [ ! -z "$CUSTOM_CMDS_IGNORE" ]
 	then

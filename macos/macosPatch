@@ -56,8 +56,6 @@ bashPatch()
 		return 1
 	fi
 
-	ensureWritableRootFS
-
 	if [ "$SHELL" != '/bin/bash' ]
 	then
 		echo "\$SHELL indicates a custom shell. Not applying bashPatch..."
@@ -69,6 +67,8 @@ bashPatch()
 		echo "$bakbashPath and $bashPath are identical..."
 		return 0
 	fi
+
+	ensureWritableRootFS
 
 	rm -f "$bashPath"
 	cp "$bakbashPath" "$bashPath"

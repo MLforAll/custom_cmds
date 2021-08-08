@@ -1,0 +1,41 @@
+#!/usr/bin/env node
+
+const { basename } = require('path')
+const fs = require('fs')
+
+function printKeysRecursive(obj, level = 0) {
+	for (const key in obj) {
+
+		const indentString = level > 0 ? "\t".repeat(level) : ""
+		const val = obj[key]
+		const isNonEmptyRecord = typeof val === 'object' && val !== null && Object.keys(val).length > 0
+
+		console.log(`${indentString}${key}: ${isNonEmptyRecord ? "{" : typeof val}`)
+		if (isNonEmptyRecord) {
+			printKeysRecursive(val, level + 1)
+			console.log(`${indentString}}`)
+		}
+	}
+}
+
+if (process.argv.length < 3) {
+	console.log(`usage: ${basename(process.argv[1])} /path/to/json`)
+	process.exit(1)
+}
+
+const inputPath = (() => {
+	const arg = process.argv[2]
+	return arg.startsWith("/") ? arg : `${__dirname}/${arg}`
+})()
+
+if (!fs.existsSync(inputPath)) {
+	console.error(`Could not locate ${inputPath}`)
+	process.exit(1)
+}
+
+try {
+	const rc = require(inputPath)
+	printKeysRecursive(rc)
+} catch (err) {
+	console.error(`Could not read ${inputPath}:`, err)
+}

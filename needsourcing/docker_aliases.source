@@ -1,0 +1,10 @@
+#!/bin/bash
+
+which docker &>/dev/null || return 0
+
+alias dimgs='docker images'
+alias dimg='docker image'
+alias dirm='docker image rm'
+
+alias dr='docker run'
+alias db='docker build'

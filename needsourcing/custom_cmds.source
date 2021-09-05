@@ -33,19 +33,28 @@ do
 done; unset speInts speInt
 
 # Exports platform specific cmds to PATH
-speCmdsPath=
+speCmdsPaths=()
 case "$(uname)" in
 	Darwin )
-		speCmdsPath=macos
+		speCmdsPaths+=(darwin)
+		if sw_vers -productName | egrep '(Mac )?OS X|macOS' >/dev/null 2>&1; then
+			speCmdsPaths+=(darwin/macos)
+		elif sw_vers -productName | grep iOS; then
+			speCmdsPaths+=(darwin/ios)
+		fi
 		;;
 	Linux )
-		speCmdsPath=linux
+		speCmdsPaths+=(linux)
 		;;
 esac
-if [ ! -z "$speCmdsPath" -a -d "$cmdsPath/$speCmdsPath" ]; then
-	export PATH="$cmdsPath/$speCmdsPath:$PATH"
+if [ -n "$speCmdsPaths" ]; then
+	for speCmdsPath in "${speCmdsPaths[@]}"; do
+		if [ -d "$cmdsPath/$speCmdsPath" ]; then
+			export PATH="$cmdsPath/$speCmdsPath:$PATH"
+		fi
+	done
 fi
-unset speCmdsPath
+unset speCmdsPaths speCmdsPath
 
 # Source all other files
 for f in "$sourcingCmdsPath"/*.source

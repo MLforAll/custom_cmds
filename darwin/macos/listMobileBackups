@@ -1,0 +1,33 @@
+#!/bin/sh
+
+BACKS_PATH="$HOME/Library/Application Support/MobileSync/Backup"
+plistBuddy=/usr/libexec/PlistBuddy
+
+isVerbose=$(if [ "$1" = '-v' ]; then echo 1; else echo 0; fi)
+
+for backBundle in "$BACKS_PATH/"*
+do
+	infoPath="$backBundle/Info.plist"
+
+	date=$($plistBuddy -c 'print :"Last Backup Date"' "$infoPath")
+
+	deviceName=$($plistBuddy -c 'print :"Device Name"' "$infoPath")
+	deviceModel=$($plistBuddy -c 'print :"Product Name"' "$infoPath")
+	deviceModelID=$($plistBuddy -c 'print :"Product Type"' "$infoPath")
+	deviceSN=$($plistBuddy -c 'print :"Serial Number"' "$infoPath")
+	deviceUUID=$($plistBuddy -c 'print :"Target Identifier"' "$infoPath")
+
+	deviceVersion=$($plistBuddy -c 'print :"Product Version"' "$infoPath")
+	deviceBuild=$($plistBuddy -c 'print :"Build Version"' "$infoPath")
+
+	macOSVer=$($plistBuddy -c 'print :"macOS Version"' "$infoPath")
+	macOSBuild=$($plistBuddy -c 'print :"macOS Build Version"' "$infoPath")
+
+	deviceDescription="$deviceModelID - $deviceModel"
+	[ $isVerbose -ne 1 ] || deviceDescription+=" - $deviceSN - $deviceUUID"
+
+	msg="$date: $deviceName ($deviceDescription) on $deviceVersion ($deviceBuild)"
+	[ $isVerbose -ne 1 ] || msg+=" backuped on $macOSVer ($macOSBuild)"
+
+	echo "$msg"
+done

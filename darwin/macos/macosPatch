@@ -89,13 +89,13 @@ lockscreenPatch()
 		return 1
 	fi
 
-	ensureWritableRootFS
-
 	if [ ! -f "$lockscreenPicturePath" ]
 	then
 		echo "$lockscreenPicturePath not found" >&2
 		return 0
 	fi
+
+	ensureWritableRootFS
 
 	cp -a "$loginuikit" "${loginuikit}_"
 	binstrpatch "$loginuikit" /System/Library/CoreServices/DefaultDesktop.heic "$lockscreenPicturePath"

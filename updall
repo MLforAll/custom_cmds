@@ -28,11 +28,12 @@ updall_dir()
 		fi
 
 		echo "=> Updating project: $p"
-		( eval "git -C '$p' pull" )
+		git -C "$p" pull
+		git -C "$p" remote update origin --prune
 		git -C "$p" submodule | sed 's/^ *//' | cut -d' ' -f2 | while read s
 		do
 			echo "   => Submodule $s"
-			( eval "git -C '$p/$s' pull" )
+			git -C "$p/$s" pull
 		done
 		did_pull=1
 	done

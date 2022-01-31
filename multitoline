@@ -1,0 +1,12 @@
+#!/bin/sh
+
+TMPFILE=/tmp/flatjson
+
+"${EDITOR:-nano}" "$TMPFILE" >&2
+[ -f "$TMPFILE" ] || {
+	echo "error: cannot locate $TMPFILE" >&2
+	exit 1
+}
+
+cat "$TMPFILE" | tr -d '[:blank:]' | tr '\n' ' '
+rm -f "$TMPFILE"

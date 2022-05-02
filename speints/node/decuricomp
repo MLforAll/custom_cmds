@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+const encoded = process.argv[2]
+if (!encoded) {
+	console.error("usage: decuricomp encodedUri")
+	process.exit(1)
+}
+
+const decoded = decodeURIComponent(encoded)
+console.log(decoded)

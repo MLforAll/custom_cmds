@@ -1,18 +1,39 @@
 #!/bin/bash
 
-# Prompt
+# Set to `1` to enable showing the current git branch
+PROMPT_ENABLE_GIT=1
+
+# Colors
+PROMPT_GIT_COLOR='1;32m'
+PROMPT_USER_HOST_COLOR='0;36m'
+PROMPT_PWD_COLOR='0;33m'
+
 updatePS1()
 {
+	export PS1=''
+
 	local ch='\h'
 	[ -z "$PROMPT_HOSTNAME" ] || ch="$PROMPT_HOSTNAME"
 
-	export PS1=''
-	PS1+='\[\033[0;36m\]\u@'"$ch"':\[\033[0;33m\]'
+	# git current branch
+	if [ $PROMPT_ENABLE_GIT -eq 1 ]
+	then
+		local git_branch=$(git-current-branch)
+		if [ -n "$git_branch" ]; then
+			PS1+="\[\033["$PROMPT_GIT_COLOR"\]($git_branch) "
+		fi
+	fi
+
+	# main portion of PS1
+	PS1+='\[\033['"$PROMPT_USER_HOST_COLOR"'\]\u@'"$ch"':\[\033['"$PROMPT_PWD_COLOR"'\]'
 	if [ $(echo -n $PWD | /usr/bin/wc -c) -gt $(/usr/bin/bc <<< "$(/usr/bin/tput cols) / 2") ]; then
 		PS1+='\W'
 	else
 		PS1+='\w'
 	fi
+
+	# reset color
 	PS1+='\[\033[0;39m\]\$ '
 }
+
 PROMPT_COMMAND='updatePS1'

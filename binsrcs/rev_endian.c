@@ -7,18 +7,20 @@ int
 main(int ac, const char **av)
 {
 	char		*ns;
-	const char	*s, *an;;
+	const char	*s;
 	size_t		len;
 
-	an = *av;
 	if (ac < 2)
-		errx(EXIT_FAILURE, "usage: %s string", an);
+	{
+		(void) fprintf(stderr, "usage: %s string", *av);
+		exit(EXIT_FAILURE);
+	}
 	len = strlen((s = av[1]));
 	if (len % 2)
-		errx(EXIT_FAILURE, "%s: %s only works with len %% 2", an, s);
+		errx(EXIT_FAILURE, "%s", "only works with len % 2");
 	ns = (char *)malloc(sizeof(char) * (len + 1));
 	if (!ns)
-		errx(EXIT_FAILURE, "%s: malloc failed", an);
+		errx(EXIT_FAILURE, "malloc failed");
 	ns[len] = '\0';
 	for (unsigned long idx = 0; len; idx += 2)
 	{

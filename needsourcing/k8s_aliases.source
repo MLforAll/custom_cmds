@@ -1,0 +1,123 @@
+#!/bin/bash
+
+which kubectl >/dev/null 2>&1 || return 0
+
+alias k=kubectl
+source <(k completion bash)
+complete -F __start_kubectl k
+
+########
+# ROOT #
+########
+
+alias krew='k krew'
+make-completion-wrapper __start_kubectl __start_kubectl_krew kubectl krew
+complete -F __start_kubectl_krew krew
+
+alias kctx='k ctx'
+__start_kubectl_ctx() {
+	COMPREPLY=($(compgen -W "$(kubectl ctx)" "${COMP_WORDS[1]}"))
+}
+complete -F __start_kubectl_ctx kctx
+
+alias kns='k ns'
+make-completion-wrapper __start_kubectl __start_kubectl_ns kubectl get namespace
+complete -F __start_kubectl_ns kns
+
+#######
+# GET #
+#######
+
+alias kg='k get'
+make-completion-wrapper __start_kubectl __start_kubectl_get kubectl get
+complete -F __start_kubectl_get kg
+
+alias kgp='kg pods'
+make-completion-wrapper __start_kubectl __start_kubectl_get_pods kubectl get pods
+complete -F __start_kubectl_get_pods kgp
+
+alias kgd='kg deployments'
+make-completion-wrapper __start_kubectl __start_kubectl_get_deployments kubectl get deployments
+complete -F __start_kubectl_get_deployments kgd
+
+alias kgsv='kg svc'
+make-completion-wrapper __start_kubectl __start_kubectl_get_svc kubectl get svc
+complete -F __start_kubectl_get_svc kgsv
+
+alias kgs='kg secrets'
+make-completion-wrapper __start_kubectl __start_kubectl_get_secrets kubectl get secrets
+complete -F __start_kubectl_get_secrets kgs
+
+alias kgi='kg ingress'
+make-completion-wrapper __start_kubectl __start_kubectl_get_ingress kubectl get ingress
+complete -F __start_kubectl_get_ingress kgi
+
+########
+# EDIT #
+########
+
+alias ke='k edit'
+make-completion-wrapper __start_kubectl __start_kubectl_edit kubectl edit
+complete -F __start_kubectl_edit ke
+
+alias kep='ke pod'
+make-completion-wrapper __start_kubectl __start_kubectl_edit_pod kubectl edit pod
+complete -F __start_kubectl_edit_pod kep
+
+alias ked='ke deployment'
+make-completion-wrapper __start_kubectl __start_kubectl_edit_deployment kubectl edit deployment
+complete -F __start_kubectl_edit_deployment ked
+
+alias kesv='ke svc'
+make-completion-wrapper __start_kubectl __start_kubectl_edit_svc kubectl edit svc
+complete -F __start_kubectl_edit_svc kesv
+
+alias kes='ke secret'
+make-completion-wrapper __start_kubectl __start_kubectl_edit_secret kubectl edit secret
+complete -F __start_kubectl_edit_secret kes
+
+alias kei='ke ingress'
+make-completion-wrapper __start_kubectl __start_kubectl_edit_ingress kubectl edit ingress
+complete -F __start_kubectl_edit_ingress kei
+
+##########
+# DELETE #
+##########
+
+alias kd='k delete'
+make-completion-wrapper __start_kubectl __start_kubectl_delete kubectl delete
+complete -F __start_kubectl_delete kd
+
+alias kdp='kd pod'
+make-completion-wrapper __start_kubectl __start_kubectl_delete_pod kubectl delete pod
+complete -F __start_kubectl_delete_pod kdp
+
+alias kdd='kd deployment'
+make-completion-wrapper __start_kubectl __start_kubectl_delete_deployment kubectl delete deployment
+complete -F __start_kubectl_delete_deployment kdd
+
+alias kdsv='kd svc'
+make-completion-wrapper __start_kubectl __start_kubectl_delete_svc kubectl delete svc
+complete -F __start_kubectl_delete_svc kdsv
+
+alias kds='kd secret'
+make-completion-wrapper __start_kubectl __start_kubectl_delete_secret kubectl delete secret
+complete -F __start_kubectl_delete_secret kds
+
+alias kdi='kd ingress'
+make-completion-wrapper __start_kubectl __start_kubectl_delete_ingress kubectl delete ingress
+complete -F __start_kubectl_delete_ingress kdi
+
+########
+# MISC #
+########
+
+alias kl='k logs'
+make-completion-wrapper __start_kubectl __start_kubectl_logs kubectl logs
+complete -F __start_kubectl_logs kl
+
+alias ka='k apply'
+
+alias krrd='k rollout restart deployment'
+make-completion-wrapper __start_kubectl __start_kubectl_rollout_restart_deployment kubectl rollout restart deployment
+complete -F __start_kubectl_rollout_restart_deployment krrd

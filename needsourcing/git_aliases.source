@@ -4,8 +4,14 @@ alias gcl='git clone'
 alias gca='git commit --amend'
 
 alias gba='git branch -a'
+
 alias gbd='git branch -d'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_branch_delete git branch delete -d
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_branch_delete gbd
+
 alias gbdd='git branch -D'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_branch_force_delete git branch delete -D
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_branch_force_delete gbdd
 
 alias glog='git log'
 alias gst='git status'
@@ -28,7 +34,12 @@ gurl()
 }
 
 alias grst='git reset'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_reset git reset
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_reset grst
+
 alias grsth='grst --hard'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_reset_hard git reset --hard
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_reset_hard grsth
 
 gbupd()
 {

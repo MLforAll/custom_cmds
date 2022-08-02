@@ -1,5 +1,21 @@
 #!/bin/bash
 
+make-completion-wrapper() {
+	local comp_function_name="$1"
+	local function_name="$2"
+	local arg_count=$(( $#-3 ))
+	shift 2
+	eval "
+		$function_name() {
+			(( COMP_CWORD+=$arg_count ))
+			COMP_WORDS=( $@ \${COMP_WORDS[@]:1} )
+			COMP_LINE=\"$@ \${COMP_WORDS[@]:1}\"
+			COMP_POINT=\${#COMP_LINE}
+			$comp_function_name
+		}
+	"
+}
+
 user_login_shell()
 {
 	local loginShell="$SHELL"

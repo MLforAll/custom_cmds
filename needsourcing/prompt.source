@@ -26,7 +26,8 @@ updatePS1()
 
 	# main portion of PS1
 	PS1+='\[\033['"$PROMPT_USER_HOST_COLOR"'\]\u@'"$ch"':\[\033['"$PROMPT_PWD_COLOR"'\]'
-	if [ $(echo -n $PWD | /usr/bin/wc -c) -gt $(/usr/bin/bc <<< "$(/usr/bin/tput cols) / 2") ]; then
+	RPWD="${PWD#$HOME}"
+	if [ $(( ${#PS1} - 25 + ${#RPWD} )) -gt $(echo "scale=0; $(/usr/bin/tput cols) / 1.25" | bc -l) ]; then
 		PS1+='\W'
 	else
 		PS1+='\w'

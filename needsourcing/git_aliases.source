@@ -17,6 +17,9 @@ alias glog='git log'
 alias gst='git status'
 
 alias gp='git push'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_push git push
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_push gp
+
 alias gl='git pull'
 
 gurl()

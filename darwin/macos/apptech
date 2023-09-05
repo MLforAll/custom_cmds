@@ -1,0 +1,40 @@
+#!/bin/sh
+
+[ -d "$1" -a -f "$1/Contents/Info.plist" ] || {
+	echo "usage: $(basename "$0") /path/to/something.app"
+	exit 1
+}
+
+binName=$(/usr/libexec/PlistBuddy -c 'print :CFBundleExecutable' "$1/Contents/Info.plist")
+binPath="$1/Contents/MacOS/$binName"
+
+[ -f "$binPath" ] || {
+	echo 'fatal: malfored application' >&2
+	exit 1
+}
+
+tech=
+deps=$(otool -L "$binPath")
+if echo "$deps" | fgrep -i electron >/dev/null 2>&1; then
+	tech=Electron
+elif echo "$deps" | fgrep -i qt >/dev/null 2>&1; then
+	tech=QT
+elif echo "$deps" | grep '[^a-zA-Z0-9]UIKit' >/dev/null 2>&1; then
+	if echo "$deps" | fgrep iOSSupport >/dev/null 2>&1; then
+		tech=Catalyst
+	else
+		tech=iOS
+	fi
+elif echo "$deps" | fgrep SwiftUI >/dev/null 2>&1; then
+	tech=SwiftUI
+elif echo "$deps" | fgrep AppKit >/dev/null 2>&1; then
+	tech=AppKit
+fi
+
+appName=$(basename "$1" .app)
+if [ -n "$tech" ]; then
+	echo "$appName is using $tech"
+else
+	echo "error: could not determine what tech $appName is using" >&2
+	exit 1
+fi

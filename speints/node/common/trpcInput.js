@@ -16,17 +16,16 @@ function createTrpcHttpInputObject(input) {
 		for (const part of basePathComponent) {
 			if (!baseObject[part]) {
 				baseObject[part] = {}
-				baseObject = baseObject[part]
 			} else if (typeof baseObject[part] !== 'object' || baseObject[part] === null) {
 				warn('multiple types at the same path; overwriting')
 				baseObject[part] = {}
-				baseObject = baseObject[part]
 			}
+			baseObject = baseObject[part]
 		}
 
 		// Set key
 		const key = keyPathComponents[keyPathComponents.length - 1]
-		baseObject[key] = value
+		baseObject[key] = isNaN(value) ? value : Number(value)
 	})
 
 	return {
@@ -39,7 +38,7 @@ function getTrpcHttpInputBody(input) {
 }
 
 function getTrpcHttpInputQuery(input) {
-	return 'input=' + encodeURIComponent(getTrpcHttpInputBody(input))
+	return encodeURIComponent(getTrpcHttpInputBody(input))
 }
 
 module.exports = {

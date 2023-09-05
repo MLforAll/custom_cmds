@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const { getProgramArgs } = require('./common/parse')
-const { getTrpcHttpInputBody } = require('./common/trpcInput')
+const { warn } = require('./common/logger')
+const { getTrpcHttpInputBody, getTrpcHttpInputQuery } = require('./common/trpcInput')
 
 const { scriptName, scriptArgCount, scriptArgs } = getProgramArgs()
 
@@ -21,9 +22,28 @@ const params = {
 	}
 }
 
+let fn = getTrpcHttpInputBody
+
 scriptArgs.forEach((arg) => {
+	switch (arg) {
+		case '-q':
+		case '--query':
+			fn = getTrpcHttpInputQuery
+			return
+		case '-m':
+		case '--mutation':
+			fn = getTrpcHttpInputBody
+			return
+		default:
+			break
+	}
+
 	const [key, ...values] = arg.split('=')
+	if (!values.length) {
+		warn(`invalid argument '${arg}'; ignoring...`)
+		return
+	}
 	params[key] = values.join('=')
 })
 
-console.log(getTrpcHttpInputBody(params))
+console.log(fn(params))

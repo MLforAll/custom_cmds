@@ -2,7 +2,7 @@
 
 const encoded = process.argv[2]
 if (!encoded) {
-	console.error("usage: decuricomp encodedUri")
+	console.error("usage: decode-uri-components uriEncodedString")
 	process.exit(1)
 }
 

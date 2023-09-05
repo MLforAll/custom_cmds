@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+const stringToEncode = process.argv[2]
+if (!stringToEncode) {
+	console.error("usage: encode-uri-components string")
+	process.exit(1)
+}
+
+const encoded = encodeURIComponent(stringToEncode)
+console.log(encoded)

@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+const { basename } = require('path')
+
+const objectId = process.argv[2]
+if (!objectId) {
+	console.error(`usage: ${basename(process.argv[1])} objectId`)
+	process.exit(1)
+}
+
+const timestampInSeconds = parseInt(objectId.substring(0, 8), 16)
+const timestampInMilliseconds = timestampInSeconds * 1000
+const creationDate = new Date(timestampInMilliseconds)
+
+console.log(`timestamp in seconds     : ${timestampInSeconds}`)
+console.log(`timestamp in milliseconds: ${timestampInSeconds}`)
+console.log(`creation date (ISO 8601) : ${creationDate.toISOString()}`)

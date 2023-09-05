@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+const { getProgramArgs } = require('./common/parse')
+const { getTrpcHttpInputBody } = require('./common/trpcInput')
+
+const { scriptName, scriptArgCount, scriptArgs } = getProgramArgs()
+
+if (scriptArgCount < 1) {
+	console.log(`usage: ${scriptName} param1 [param2 [...paramN]]`)
+	console.log(`  example: ${scriptName} pagination.type=forward pagination.first=10`)
+	process.exit(1)
+}
+
+const params = {
+	forEach: function (callback) {
+		for (const key in this) {
+			if (key === 'forEach') {
+				continue
+			}
+			callback(this[key], key)
+		}
+	}
+}
+
+scriptArgs.forEach((arg) => {
+	const [key, ...values] = arg.split('=')
+	params[key] = values.join('=')
+})
+
+console.log(getTrpcHttpInputBody(params))

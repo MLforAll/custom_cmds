@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+const { getProgramArgs } = require('./common/parse')
+const { getTrpcHttpInputQuery } = require('./common/trpcInput')
+
+const { scriptName, scriptArgs } = getProgramArgs()
+
+const qs = scriptArgs[0]
+if (!qs) {
+	console.log(`usage: ${scriptName} query-string`)
+	console.log(`  example: ${scriptName} first=10,after=cursor`)
+	process.exit(1)
+}
+
+const url = new URL('http://example.com/?' + qs)
+console.log(getTrpcHttpInputQuery(url.searchParams))

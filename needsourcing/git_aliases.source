@@ -71,6 +71,7 @@ git-current-branch() {
 }
 
 alias gpsup='git push --set-upstream origin $(git-current-branch)'
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_push gpsup
 
 git-creation-date() {
 	git log --follow --format=%aD "$1" | tail -1

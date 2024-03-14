@@ -17,7 +17,7 @@ tech=
 deps=$(otool -L "$binPath")
 if echo "$deps" | fgrep -i electron >/dev/null 2>&1; then
 	tech=Electron
-elif echo "$deps" | fgrep -i qt >/dev/null 2>&1; then
+elif echo "$deps" | grep -i 'qt[^k]' >/dev/null 2>&1; then
 	tech=QT
 elif echo "$deps" | grep '[^a-zA-Z0-9]UIKit' >/dev/null 2>&1; then
 	if echo "$deps" | fgrep iOSSupport >/dev/null 2>&1; then
@@ -33,7 +33,7 @@ fi
 
 appName=$(basename "$1" .app)
 if [ -n "$tech" ]; then
-	echo "$appName is using $tech"
+	echo "$appName seems to be using $tech"
 else
 	echo "error: could not determine what tech $appName is using" >&2
 	exit 1

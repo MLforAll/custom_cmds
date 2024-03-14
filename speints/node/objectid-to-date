@@ -13,5 +13,5 @@ const timestampInMilliseconds = timestampInSeconds * 1000
 const creationDate = new Date(timestampInMilliseconds)
 
 console.log(`timestamp in seconds     : ${timestampInSeconds}`)
-console.log(`timestamp in milliseconds: ${timestampInSeconds}`)
+console.log(`timestamp in milliseconds: ${timestampInMilliseconds}`)
 console.log(`creation date (ISO 8601) : ${creationDate.toISOString()}`)

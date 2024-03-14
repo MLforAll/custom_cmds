@@ -1,0 +1,47 @@
+#!/bin/bash
+
+npm()
+{
+	npmModulesRoot=$(command npm root 2>/dev/null)
+	[ $? -eq 0 ] || {
+		echo 'fatal: could not get node_modules path' >&2
+		return 1
+	}
+
+	packageRoot=$(dirname "$npmModulesRoot")
+
+	if [ -f "$packageRoot/pnpm-lock.yaml" ]
+	then
+		echo 'fatal: this package is using pnpm' >&2
+		return 1
+	elif [ -f "$packageRoot/yarn.lock" ]
+	then
+		echo 'fatal: this package is using yarn' >&2
+		return 1
+	fi
+
+	command npm "$@"
+}
+
+pnpm()
+{
+	pnpmModulesRoot=$(command pnpm root 2>/dev/null)
+	[ $? -eq 0 ] || {
+		echo 'fatal: could not get node_modules path' >&2
+		return 1
+	}
+
+	packageRoot=$(dirname "$pnpmModulesRoot")
+
+	if [ -f "$packageRoot/package-lock.json" ]
+	then
+		echo 'fatal: this package is using npm' >&2
+		return 1
+	elif [ -f "$packageRoot/yarn.lock" ]
+	then
+		echo 'fatal: this package is using yarn' >&2
+		return 1
+	fi
+
+	command pnpm "$@"
+}

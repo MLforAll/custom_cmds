@@ -36,6 +36,30 @@ alias kgp='kg pods'
 make-completion-wrapper __start_kubectl __start_kubectl_get_pods kubectl get pods
 complete -F __start_kubectl_get_pods kgp
 
+kgpw() {
+	args=; [ -z "$1" ] || args+="-n $1"
+	local first=1
+	local oldOutputLineCount
+	while true
+	do
+		local output=$(kgp $args 2>&1)
+		if [ $first -eq 0 ]
+		then
+			local i
+			for (( i=0; i < $(( oldOutputLineCount + 1 )); i++ ));
+			do
+				printf '\033[1A\r\033[K'
+			done
+		else
+			first=0
+		fi
+		oldOutputLineCount=$(echo "$output" | wc -l)
+		echo "$output"
+		sleep 2
+		echo 'Refreshing...'
+	done
+}
+
 alias kgd='kg deployments'
 make-completion-wrapper __start_kubectl __start_kubectl_get_deployments kubectl get deployments
 complete -F __start_kubectl_get_deployments kgd
@@ -121,3 +145,19 @@ alias ka='k apply'
 alias krrd='k rollout restart deployment'
 make-completion-wrapper __start_kubectl __start_kubectl_rollout_restart_deployment kubectl rollout restart deployment
 complete -F __start_kubectl_rollout_restart_deployment krrd
+
+alias kl='k logs'
+make-completion-wrapper __start_kubectl __start_kubectl_logs kubectl logs
+complete -F __start_kubectl_logs kl
+
+alias kexe='k exec'
+
+kesh() {
+	[ -n "$1" ] || {
+		echo 'usage: kesh podName [namespace]'
+		return 1
+	}
+	args=; [ -z "$2" ] || args+="-n $2"
+	kexe -it $args "$1" -- /bin/sh
+}
+complete -F __start_kubectl_get_pods kesh

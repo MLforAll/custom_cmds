@@ -1,14 +1,18 @@
 #!/bin/bash
 
-# Set to `1` to enable showing the current git branch
+# Config
+PROMPT_MODE=basic # choices: basic, full
+PROMPT_FULL_ENABLE_EVAL=1
+PROMPT_FULL_EVAL_OK_COLOR='1;32m'
+PROMPT_FULL_EVAL_FAIL_COLOR='1;31m'
+PROMPT_FULL_EVAL_NOTFOUND_COLOR='1;30m'
 PROMPT_ENABLE_GIT=1
-
-# Colors
 PROMPT_GIT_COLOR='1;32m'
+PROMPT_KUBE_COLOR='1;33m'
 PROMPT_USER_HOST_COLOR='0;36m'
 PROMPT_PWD_COLOR='0;33m'
 
-updatePS1()
+__updatePS1Basic()
 {
 	export PS1=''
 
@@ -27,7 +31,7 @@ updatePS1()
 	# main portion of PS1
 	PS1+='\[\033['"$PROMPT_USER_HOST_COLOR"'\]\u@'"$ch"':\[\033['"$PROMPT_PWD_COLOR"'\]'
 	RPWD="${PWD#$HOME}"
-	if [ $(( ${#PS1} - 25 + ${#RPWD} )) -gt $(echo "scale=0; $(/usr/bin/tput cols) / 1.25" | bc -l) ]; then
+	if [ -e /usr/bin/tput ] && [ $(( ${#PS1} - 25 + ${#RPWD} )) -gt $(echo "scale=0; $(/usr/bin/tput cols) / 1.25" | bc -l) ]; then
 		PS1+='\W'
 	else
 		PS1+='\w'
@@ -37,4 +41,83 @@ updatePS1()
 	PS1+='\[\033[0;39m\]\$ '
 }
 
-PROMPT_COMMAND='updatePS1'
+__updatePS1Full()
+{
+	export PS1='\[\033['"$PROMPT_USER_HOST_COLOR"'\]\u@'"$ch"':\[\033['"$PROMPT_PWD_COLOR"'\]\w'
+
+	local didAddDetailToPs1=0
+	addDetailToPs1() {
+		PS1+='\[\033[0;39m\]'
+		if [ $didAddDetailToPs1 -eq 0 ]
+		then
+			PS1+=$'\n↳ '
+			didAddDetailToPs1=1
+		else
+			PS1+='; '
+		fi
+		PS1+="$1"
+	}
+
+	# git
+	if [ $PROMPT_ENABLE_GIT -eq 1 ]
+	then
+		local git_branch=$(git-current-branch)
+		if [ -n "$git_branch" ]; then
+			addDetailToPs1 "\[\033["$PROMPT_GIT_COLOR"\]git:$git_branch"
+		fi
+	fi
+
+	# k8s
+	if which yq >/dev/null 2>&1
+	then
+		local k8sConfigPath="${KUBECONFIG:-"$HOME/.kube/config"}"
+		local k8sCurrentContext=$(cat "$k8sConfigPath" | yq .current-context)
+		local k8sContextIndex=0
+		while true
+		do
+			local contextName=$(cat "$k8sConfigPath" | yq .contexts[$k8sContextIndex].name)
+			if [ "$contextName" = null -o "$contextName" = "$k8sCurrentContext" ]
+			then
+				break
+			fi
+			(( k8sContextIndex++ ))
+		done
+		local k8sNamespace=$(cat "$k8sConfigPath" | yq .contexts["$k8sContextIndex"].context.namespace)
+		addDetailToPs1 "\[\033["$PROMPT_KUBE_COLOR"\]kube:$k8sCurrentContext/$k8sNamespace"
+	fi
+
+	PS1+=$'\n'
+	if [ $PROMPT_FULL_ENABLE_EVAL -eq 1 ]
+	then
+		case $1 in
+			0 )
+				PS1+="\[\033["$PROMPT_FULL_EVAL_OK_COLOR"\]"
+				;;
+			127 )
+				PS1+="\[\033["$PROMPT_FULL_EVAL_NOTFOUND_COLOR"\]"
+				;;
+			* )
+				PS1+="\[\033["$PROMPT_FULL_EVAL_FAIL_COLOR"\]"
+				;;
+		esac
+	fi
+	PS1+='↳\[\033[0;39m\] '
+}
+
+__updatePS1()
+{
+	local lastCommandExit=$?
+
+	case "$PROMPT_MODE" in
+	full )
+		__updatePS1Full $lastCommandExit
+		;;
+	* )
+		__updatePS1Basic $lastCommandExit
+		;;
+	esac
+
+	return $lastCommandExit
+}
+
+PROMPT_COMMAND=__updatePS1

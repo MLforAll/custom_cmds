@@ -15,7 +15,7 @@ binPath="$1/Contents/MacOS/$binName"
 
 tech=
 deps=$(otool -L "$binPath")
-if echo "$deps" | fgrep -i electron >/dev/null 2>&1; then
+if echo "$deps" | fgrep 'Electron Framework' >/dev/null 2>&1; then
 	tech=Electron
 elif echo "$deps" | grep -i 'qt[^k]' >/dev/null 2>&1; then
 	tech=QT

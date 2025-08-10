@@ -1,0 +1,75 @@
+#!/bin/bash
+
+#########
+# Utils #
+#########
+
+appName=$(basename "$0")
+
+usage() {
+	if [ -n "$1" ]
+	then
+		echo "error: $1" >&2
+	fi
+
+	echo "usage: $appName source [destination]"
+	echo '  source: path to a .app bundle. Can be absolute or relative.'
+	echo '  destination: path to the output file or containing directory. Can be absolute or relative.'
+	echo
+	echo '  By default, output file will be placed alongside .app bundle.'
+	echo '  If destination points to a folder, output file will be placed in that folder.'
+	echo '  Otherwise, the output file will be named according to destination argument and placed'
+	echo '  in the parent folder pointed to by that argument.'
+
+	exit 1
+}
+
+#####################
+# Parameter Parsing #
+#####################
+
+[ -n "$1" ] || usage
+
+# Validate source argument
+source="$1"
+[ -d "$source" ] && echo "$source" | grep '\.app$' >/dev/null 2>&1 || usage 'invalid source'
+
+# Get some info about .app bundle
+appDirPath=$(dirname "$source")
+appBundleName=$(basename "$source" .app)
+
+# Validate destination argument and determine output file path
+destination="$2"
+outputBaseName="${appBundleName}.ipa"
+if [ -z "$destination" ]
+then
+	outputDirPath="$appDirPath"
+elif [ -d "$destination" ]
+then
+	outputDirPath="$destination"
+else
+	outputDirPath=$(dirname "$destination")
+	outputBaseName=$(basename "$destination")
+fi
+[ -d "$outputDirPath" ] || usage 'invalid destination'
+outputPath="$outputDirPath/$outputBaseName"
+
+##########
+# Script #
+##########
+
+echo "-> Move to directory $appDirPath"
+cd "$appDirPath"
+
+echo '-> Preparing IPA contents'
+mkdir Payload
+mv "${appBundleName}.app" Payload
+
+echo '-> Packaging IPA'
+zip -r "$outputPath" Payload
+
+echo '-> Cleanup'
+mv Payload/* .
+rm -rf Payload
+
+echo "Packaged IPA available: $outputPath"

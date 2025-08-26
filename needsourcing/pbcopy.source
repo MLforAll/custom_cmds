@@ -7,3 +7,23 @@ then
 fi
 
 linepbcopy() { tr -d \\\n | pbcopy; }
+
+pbtolower() {
+	local text=$(pbpaste | tr '[:upper:]' '[:lower:]')
+	if [ -t 1 ]
+	then
+		echo "$text" | pbcopy
+	else
+		echo "$text"
+	fi
+}
+
+pbtoupper() {
+	local text=$(pbpaste | tr '[:lower:]' '[:upper:]')
+	if [ -t 1 ]
+	then
+		echo "$text" | pbcopy
+	else
+		echo "$text"
+	fi
+}

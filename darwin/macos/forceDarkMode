@@ -1,8 +1,21 @@
-#!/bin/sh
-[ ! -z "$1" ] || { echo 'usage: forceDarkMode app_name' >&2; exit 1; }
+#!/bin/bash
+
+appName=$(basename "$0")
+
+usage() {
+	echo "usage: $appName appName [action]" >&2
+	echo '  appName: Display name like Finder, Mail, Code, etc.'
+	echo '  action: One of revert or light'
+	exit 1
+}
+
+[ -n "$1" -a "$1" != -h -a "$1" != --help ] || usage
 
 bid=$(appid "$1")
-[ $? -eq 0 -a ! -z "$bid" ] || { echo 'appid failed!' >&2; exit 2; }
+[ $? -eq 0 -a ! -z "$bid" ] || {
+	echo "error: invalid app '$1'" >&2
+	exit 2
+}
 
 case "$2" in
 	revert )
@@ -18,7 +31,6 @@ case "$2" in
 		defaults write "$bid" NSRequiresAquaSystemAppearance -bool NO
 		;;
 	* )
-		echo "usage: $(basename "$0") [revert|light]"
-		exit 1
+		usage
 		;;
 esac

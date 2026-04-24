@@ -46,7 +46,7 @@ then
 	outputDirPath="$appDirPath"
 elif [ -d "$destination" ]
 then
-	outputDirPath="$destination"
+	outputDirPath="${destination%/}"
 else
 	outputDirPath=$(dirname "$destination")
 	outputBaseName=$(basename "$destination")

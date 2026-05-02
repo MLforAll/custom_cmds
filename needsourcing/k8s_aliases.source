@@ -3,7 +3,7 @@
 which kubectl >/dev/null 2>&1 || return 0
 
 alias k=kubectl
-source <(k completion bash)
+source <(kubectl completion bash)
 complete -F __start_kubectl k
 
 ########

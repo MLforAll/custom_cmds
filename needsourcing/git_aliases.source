@@ -2,8 +2,11 @@
 
 alias gcl='git clone'
 alias gca='git commit --amend'
-
+alias gpfwl='git push --force-with-lease'
+alias gl='git pull'
 alias gba='git branch -a'
+alias glog='git log'
+alias gst='git status'
 
 alias gbd='git branch -d'
 make-completion-wrapper __git_wrap__git_main __git_wrap__git_branch_delete git branch delete -d
@@ -13,14 +16,17 @@ alias gbdd='git branch -D'
 make-completion-wrapper __git_wrap__git_main __git_wrap__git_branch_force_delete git branch delete -D
 complete -o bashdefault -o default -o nospace -F __git_wrap__git_branch_force_delete gbdd
 
-alias glog='git log'
-alias gst='git status'
+alias gr='git rebase'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_rebase git rebase
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_rebase gr
 
 alias gp='git push'
 make-completion-wrapper __git_wrap__git_main __git_wrap__git_push git push
 complete -o bashdefault -o default -o nospace -F __git_wrap__git_push gp
 
-alias gl='git pull'
+alias gc='git checkout'
+make-completion-wrapper __git_wrap__git_main __git_wrap__git_checkout git checkout
+complete -o bashdefault -o default -o nospace -F __git_wrap__git_checkout gc
 
 gurl()
 {
@@ -44,20 +50,37 @@ alias grsth='grst --hard'
 make-completion-wrapper __git_wrap__git_main __git_wrap__git_reset_hard git reset --hard
 complete -o bashdefault -o default -o nospace -F __git_wrap__git_reset_hard grsth
 
+#
+# gbupd - Git Branch UPDate
+# Syncs local branches with remote
+#
+# usage: gbupd [remoteName]
+#
+# $1: Remote name (defaults to "origin")
+# Output: Nothing
+#
 gbupd()
 {
 	local remote=origin
-	if [ ! -z "$1" ]
+	if [ $# -gt 0 ]
 	then
-		remote="$1"
+		[ -z "$1" ] || remote="$1"
 		shift
 	fi
 
 	git remote update "$remote" --prune "$@"
 }
 
-git-current-branch() {
-
+#
+# git-current-branch
+# Prints current branch
+#
+# usage: git-current-branch
+#
+# Output: Current branch name
+#
+git-current-branch()
+{
 	local ref=$(git symbolic-ref --quiet HEAD 2> /dev/null) 
 	local ret=$?
 
@@ -70,9 +93,88 @@ git-current-branch() {
 	echo ${ref#refs/heads/}
 }
 
+#
+# git-remote-head-branch
+# Prints remote head branch
+#
+# usage: git-remote-head-branch [remoteName]
+#
+# $1: Remote name (defaults to "origin")
+# Output: Remote head name
+#
+git-remote-head-branch()
+{
+	local remote="${1:-origin}"
+	local remoteHeadBranch=$(git remote show "$remote" | sed -n '/HEAD branch/s/.*: //p')
+	if [ -z "$remoteHeadBranch" ]
+	then
+		echo 'Could not determine remote HEAD branch' >&2
+		return 1
+	fi
+	echo "$remoteHeadBranch"
+}
+
 alias gpsup='git push --set-upstream origin $(git-current-branch)'
 complete -o bashdefault -o default -o nospace -F __git_wrap__git_push gpsup
 
+#
+# git-creation-date
+#
+# usage: git-creation-date [filePath]
+#
+# $1: file path
+# Output: Creation date
+#
 git-creation-date() {
 	git log --follow --format=%aD "$1" | tail -1
+}
+
+#
+# gsa - Git Sync All
+#
+# usage: gbupd [remoteName]
+#
+# $1: Remote name (defaults to "origin")
+# Output: Nothing
+#
+gsa()
+{
+	if ! gst | fgrep 'nothing to commit' >/dev/null 2>&1
+	then
+		echo 'Workdir is not clean' >&2
+		return 1
+	fi
+
+	local remote="${1:-origin}"
+	local remoteHeadBranch=$(git-remote-head-branch "$remote")
+
+	git checkout "$remoteHeadBranch" || return
+
+	gl && gbupd "$1" || {
+		git checkout -
+		return
+	}
+
+	if which gt >/dev/null 2>&1
+	then
+		gt sync
+	fi
+
+	git checkout - || return
+
+	git rebase "$remoteHeadBranch"
+}
+
+#
+# gcm - Git Checkout Main
+# Checkouts to main branch
+#
+# usage: gcm [remoteName]
+#
+# $1: Remote name (defaults to "origin")
+# Output: Nothing
+#
+gcm()
+{
+	git checkout "$(git-remote-head-branch "$1")"
 }
